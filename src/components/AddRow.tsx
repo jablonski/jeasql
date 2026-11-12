@@ -2,6 +2,7 @@ import { hasBlobAffinity } from "../server/db.ts";
 import { insertField } from "../server/forms.ts";
 import { url } from "../server/url.ts";
 import type { Column } from "../server/db.ts";
+import HiddenFields from "./HiddenFields.tsx";
 
 /**
  * Collapsible form to insert a row. Blank fields get the column default.
@@ -20,8 +21,7 @@ export default function AddRow({
     <details class="panel">
       <summary>+ Add row</summary>
       <form method="post" action={url("/update-row")} enctype="multipart/form-data" class="stack">
-        <input type="hidden" name="op" value="insert" />
-        <input type="hidden" name="table" value={name} />
+        <HiddenFields fields={{ op: "insert", table: name }} />
         <div class="grid">
           {cols.map((column) => (
             <label class="field">

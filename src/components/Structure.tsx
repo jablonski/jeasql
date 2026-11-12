@@ -2,6 +2,7 @@ import { cx } from "../server/classes.ts";
 import { url } from "../server/url.ts";
 import type { Column, TableOp } from "../server/db.ts";
 import TypeSelect from "./TypeSelect.tsx";
+import HiddenFields from "./HiddenFields.tsx";
 
 /** Forms for structural changes (ALTER TABLE / DROP TABLE). */
 export default function Structure({ name, cols }: { name: string; cols: Column[] }) {
@@ -114,8 +115,7 @@ function AlterForm({
       data-js-confirm={confirm}
       data-js-confirm-ok={confirmOk}
     >
-      <input type="hidden" name="op" value={op} />
-      <input type="hidden" name="table" value={table} />
+      <HiddenFields fields={{ op, table }} />
       <h3>{title}</h3>
       {children}
     </form>

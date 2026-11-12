@@ -5,6 +5,7 @@ import type { Filters, Row, RowKey, SortDir } from "../server/db.ts";
 import { url } from "../server/url.ts";
 import Cell from "./Cell.tsx";
 import CellEditor from "./CellEditor.tsx";
+import HiddenFields from "./HiddenFields.tsx";
 
 /**
  * A filter row under the headers: a GET form to `action` re-sending `fields`
@@ -64,9 +65,7 @@ export default function DataTable({
       {filter && (
         // The inputs sit in the table and join this form via their form attribute.
         <form id={formId} method="get" action={filter.action} class="filter-form">
-          {Object.entries(filter.fields).map(([name, value]) => (
-            <input type="hidden" name={name} value={value} />
-          ))}
+          <HiddenFields fields={filter.fields} />
           {/* Enter in any input submits: implicit submission needs a submit button. */}
           <button type="submit" tabindex={-1} aria-hidden="true" />
         </form>
@@ -126,9 +125,7 @@ export default function DataTable({
                         action={url("/update-row")}
                         data-js-confirm="Delete this row?"
                       >
-                        <input type="hidden" name="op" value="delete" />
-                        <input type="hidden" name="table" value={table} />
-                        <input type="hidden" name="key" value={key} />
+                        <HiddenFields fields={{ op: "delete", table, key }} />
                         <button
                           type="submit"
                           class="icon"

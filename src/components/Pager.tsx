@@ -1,3 +1,5 @@
+import HiddenFields from "./HiddenFields.tsx";
+
 /** Where page links lead: a URL per page, or a POST form re-sending `fields` with `page`. */
 export type PageTarget =
   | { href: (page: number) => string }
@@ -50,9 +52,7 @@ function PageLink({ target, page, label }: { target: PageTarget; page?: number; 
   }
   return (
     <form method="post" action={target.action}>
-      {Object.entries(target.fields).map(([name, value]) => (
-        <input type="hidden" name={name} value={value} />
-      ))}
+      <HiddenFields fields={target.fields} />
       <button type="submit" name="page" value={String(page)} class="link">
         {label}
       </button>
