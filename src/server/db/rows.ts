@@ -1,6 +1,6 @@
 // Reading and changing single rows and cells.
 import { db, holdCursor } from "./connection.ts";
-import { assertTable, findObject, hasBlobAffinity, tableColumns } from "./schema.ts";
+import { assertTable, findObject, hasBlobAffinity, indexes, tableColumns } from "./schema.ts";
 import {
   findName,
   PAGE_CLAUSE,
@@ -52,7 +52,7 @@ export function describeTable(name: string): TableInfo | undefined {
     columnNames: cols.map((column) => column.name),
     keyColumns: keyColumnsOf(object, cols, withoutRowid),
     withoutRowid,
-    rowidAlias: rowidAliasOf(cols, withoutRowid),
+    rowidAlias: rowidAliasOf(object, cols, withoutRowid),
     blobColumns: cols.filter((column) => hasBlobAffinity(column.type)).map((column) => column.name),
   };
 }
@@ -83,12 +83,15 @@ export function isWithoutRowid(object: SchemaObject) {
 /**
  * The column SQLite fills in automatically: a single-column INTEGER PRIMARY KEY is
  * the rowid (not in WITHOUT ROWID tables, which have no rowid, nor in composite keys).
+ * An "INTEGER PRIMARY KEY DESC" is no alias: SQLite gives it a primary key index
+ * (origin "pk"), which a real alias never has.
  */
-function rowidAliasOf(cols: Column[], withoutRowid: boolean) {
+function rowidAliasOf(object: SchemaObject, cols: Column[], withoutRowid: boolean) {
   const keys = cols.filter((column) => column.pk);
-  return !withoutRowid && keys.length === 1 && keys[0].type.toUpperCase() === "INTEGER"
-    ? keys[0].name
-    : undefined;
+  if (withoutRowid || keys.length !== 1 || keys[0].type.trim().toUpperCase() !== "INTEGER") {
+    return undefined;
+  }
+  return indexes(object.name).some((index) => index.origin === "pk") ? undefined : keys[0].name;
 }
 
 /** SQLite's names for the built-in rowid; a real column of that name hides it. */
@@ -122,7 +125,7 @@ function keyColumnsOf(object: SchemaObject, cols: Column[], withoutRowid: boolea
 }
 
 /**
- * One page of a table or view as a lazy cursor of rows (arrays in column order),
+ * One page of a table or view as a lazy cursor of rows (arrays in the order of `columnNames`),
  * sorted by `sort` if it is a column and limited to rows matching `filters`. For tables, `rowKey` reads a row's key:
  * the key columns are selected once more after the visible ones, so the hidden
  * rowid is available too.
@@ -147,9 +150,13 @@ export function readTablePage(
     ...keyColumns.map(quote),
   ];
   const { where, params } = filterClause(filters);
+  // Tables list their columns explicitly: SELECT * would also return generated columns,
+  // which PRAGMA table_info leaves out, shifting values against columnNames and keys.
+  // Views keep *: their PRAGMA names may be renamed duplicates ("id:1") that can't be selected.
+  const select = object.type === "table" ? quoteList(columnNames) : "*";
   const order = terms.length ? ` ORDER BY ${terms.join(", ")}` : "";
   const statement = prepareBig(
-    `SELECT *${keySelect} FROM ${quote(object.name)}${where}${order} ${PAGE_CLAUSE}`,
+    `SELECT ${select}${keySelect} FROM ${quote(object.name)}${where}${order} ${PAGE_CLAUSE}`,
   );
   statement.setReturnArrays(true);
   const visibleCount = columnNames.length;

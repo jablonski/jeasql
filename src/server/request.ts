@@ -28,7 +28,7 @@ export function errorResponse({ request, reply }: RouteProps, status: number, er
   if (wantsJson(request)) {
     return jsonError(reply, status, error);
   }
-  reply.status(status);
+  reply.status(status).type("text/plain; charset=utf-8");
   return error;
 }
 

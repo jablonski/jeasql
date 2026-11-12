@@ -333,3 +333,29 @@ describe("filters", () => {
     );
   });
 });
+
+describe("generated columns", () => {
+  test("values line up with columns and keys stay the rowid", () => {
+    db().exec(`
+      CREATE TABLE gen (a INTEGER, g INTEGER GENERATED ALWAYS AS (a * 100) VIRTUAL, c INTEGER);
+      INSERT INTO gen (a, c) VALUES (1, 2), (2, 1);
+    `);
+    const info = describeTable("gen")!;
+    const { rows, rowKey } = readTablePage(info, { limit: 10, offset: 0 });
+    const read = [...rows];
+    assert.deepEqual(info.columnNames, ["a", "c"]);
+    assert.deepEqual(read.map((r) => r.slice(0, 2)), [[1n, 2n], [2n, 1n]]);
+    assert.deepEqual(read.map((r) => rowKey!(r)), [{ rowid: 1n }, { rowid: 2n }]);
+  });
+});
+
+describe("rowidAlias", () => {
+  test("INTEGER PRIMARY KEY DESC is no rowid alias", () => {
+    db().exec(`
+      CREATE TABLE alias_desc (id INTEGER PRIMARY KEY DESC, v);
+      CREATE TABLE alias_lower (id integer primary key, v);
+    `);
+    assert.equal(describeTable("alias_desc")!.rowidAlias, undefined);
+    assert.equal(describeTable("alias_lower")!.rowidAlias, "id");
+  });
+});

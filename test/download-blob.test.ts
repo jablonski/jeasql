@@ -19,6 +19,10 @@ function download(query: Record<string, string>) {
       out.headers[name] = value;
       return reply;
     },
+    type(value: string) {
+      out.headers["content-type"] = value;
+      return reply;
+    },
   };
   out.body = downloadBlob({ request: { query, headers: {} }, reply } as any);
   return out;
