@@ -1,5 +1,6 @@
 // Turns submitted form fields into data for the db functions.
 import { checked, trimmed } from "./fields.ts";
+import { dict } from "./dict.ts";
 
 /**
  * Field names of the insert form (components/AddRow.tsx), one set per column.
@@ -28,7 +29,7 @@ export function insertValues(
   fields: Record<string, string>,
   files: Record<string, Uint8Array> = {},
 ) {
-  const values: Record<string, string | Uint8Array | null> = Object.create(null);
+  const values = dict<string | Uint8Array | null>();
   const has = (obj: object, name: string) => Object.hasOwn(obj, name);
   const columns = new Set(
     [...Object.keys(fields), ...Object.keys(files)]

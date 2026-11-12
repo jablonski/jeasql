@@ -4,6 +4,7 @@ import { quote, SQL_NUMBER } from "./sql.ts";
 import { filterClause } from "./filter.ts";
 import type { Filters } from "./filter.ts";
 import { requireText, trimmed } from "../fields.ts";
+import { dict } from "../dict.ts";
 
 /** A table or view. */
 export type SchemaObject = { name: string; type: string; sql: string };
@@ -58,8 +59,7 @@ export function schemaMap() {
       `SELECT o.name AS tbl, c.name AS col FROM (${OBJECTS_SQL}) AS o, pragma_table_info(o.name) AS c ORDER BY o.type, o.name, c.cid`,
     )
     .all() as { tbl: string; col: string }[];
-  // No prototype: a table named "constructor" or "__proto__" must not hit inherited members.
-  const schema: Record<string, string[]> = Object.create(null);
+  const schema = dict<string[]>();
   for (const { tbl, col } of rows) {
     (schema[tbl] ??= []).push(col);
   }

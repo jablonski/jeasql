@@ -1,5 +1,6 @@
 import type { FastifyReply, FastifyRequest } from "fastify";
 import type { RouteProps, ThisContext } from "../types.d.ts";
+import { dict } from "./dict.ts";
 
 // Route convention: a page with a form handles both methods in one route (GET shows
 // it, POST handles it and re-renders it with the error, see isPost: create-table,
@@ -54,8 +55,7 @@ export function isPost(request: FastifyRequest) {
  * like repeated form fields do.
  */
 export function queryParams(request: FastifyRequest): Record<string, string> {
-  // No prototype, so names like "constructor" never match inherited properties.
-  const params: Record<string, string> = Object.create(null);
+  const params = dict<string>();
   for (const [name, value] of Object.entries((request.query ?? {}) as Record<string, unknown>)) {
     params[name] = String((Array.isArray(value) ? value.at(-1) : value) ?? "");
   }
@@ -83,9 +83,8 @@ export function jsonBody(request: FastifyRequest): Record<string, unknown> {
  * File inputs left empty (no filename) are skipped.
  */
 async function readMultipart(request: FastifyRequest) {
-  // No prototype: a field named "__proto__" stays an ordinary entry.
-  const fields: Record<string, string> = Object.create(null);
-  const files: Record<string, Uint8Array> = Object.create(null);
+  const fields = dict<string>();
+  const files = dict<Uint8Array>();
   for await (const part of request.parts()) {
     if (part.type === "file") {
       if (part.filename) {
