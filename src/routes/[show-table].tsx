@@ -1,4 +1,5 @@
 import DataTable from "../components/DataTable.tsx";
+import Definition from "../components/Definition.tsx";
 import Layout from "../components/Layout.tsx";
 import Pager from "../components/Pager.tsx";
 import AddRow from "../components/AddRow.tsx";
@@ -103,10 +104,7 @@ export default function ({ request }: RouteProps) {
 
       {isTable && <Structure name={name} cols={cols} />}
 
-      <h2>Definition</h2>
-      <pre>
-        <code>{sql}</code>
-      </pre>
+      <Definition sql={sql} />
     </Layout>
   );
 }
@@ -151,14 +149,7 @@ function BrokenObject({ name, error }: { name: string; error: string }) {
     <Layout title={name} description={`${object?.type ?? "object"} ${name}`} table={name}>
       <h1>{name}</h1>
       <ErrorMessage error={error} />
-      {object && (
-        <>
-          <h2>Definition</h2>
-          <pre>
-            <code>{object.sql}</code>
-          </pre>
-        </>
-      )}
+      {object && <Definition sql={object.sql} />}
     </Layout>
   );
 }
