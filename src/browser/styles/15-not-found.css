@@ -1,0 +1,17 @@
+/* ---------- 404 ---------- */
+.not-found-code {
+  font: 700 0.8rem var(--mono);
+  letter-spacing: 0.1em;
+  color: var(--accent);
+}
+
+.not-found code {
+  word-break: break-all;
+}
+
+.not-found-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin-top: 0.5rem;
+}

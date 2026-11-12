@@ -1,0 +1,307 @@
+/* ---------- write features: forms, panels, cards ---------- */
+input:not([type="checkbox"]),
+select {
+  width: 100%;
+  min-width: 0;
+  padding: 0.42rem 0.6rem;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  background: var(--surface);
+  color: var(--text);
+  font: 13px var(--sans);
+  transition:
+    border-color 0.12s,
+    box-shadow 0.12s;
+}
+
+/* Own chevron instead of the native one, vertically centred and themed. */
+select {
+  appearance: none;
+  padding-right: 1.9rem;
+  background-image:
+    linear-gradient(45deg, transparent 50%, var(--muted) 50%),
+    linear-gradient(135deg, var(--muted) 50%, transparent 50%);
+  background-position:
+    right 0.95rem center,
+    right 0.65rem center;
+  background-size: 5px 5px;
+  background-repeat: no-repeat;
+  cursor: pointer;
+}
+
+input:not([type="checkbox"]):focus,
+select:focus {
+  outline: none;
+  border-color: var(--accent);
+  box-shadow: var(--ring);
+}
+
+input[type="file"] {
+  padding: 0.25rem;
+  border-style: dashed;
+  color: var(--text-2);
+  font-size: 12px;
+  cursor: pointer;
+}
+
+input[type="file"]::file-selector-button {
+  margin-right: 0.6rem;
+  padding: 0.2rem 0.65rem;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  background: var(--surface);
+  color: var(--text-2);
+  font: 600 12px var(--sans);
+  cursor: pointer;
+  box-shadow: var(--shadow-sm);
+  transition:
+    border-color 0.12s,
+    color 0.12s;
+}
+
+/* Same look as the secondary buttons in the cell editor. */
+input[type="file"]:hover::file-selector-button {
+  border-color: var(--border-strong);
+  color: var(--text);
+}
+
+input[type="checkbox"] {
+  width: 15px;
+  height: 15px;
+  margin: 0;
+  accent-color: var(--accent);
+}
+
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: 0.3rem;
+}
+
+.field > span {
+  color: var(--text-2);
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.field small {
+  color: var(--muted);
+  font-weight: 400;
+}
+
+label.inline {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  color: var(--muted);
+  font-size: 12px;
+  white-space: nowrap;
+  cursor: pointer;
+}
+
+.stack {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.stack > .field {
+  max-width: 24rem;
+}
+
+.grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(13rem, 1fr));
+  gap: 0.9rem 1rem;
+}
+
+button.secondary,
+a.button.secondary {
+  border-color: var(--border);
+  background: var(--surface);
+  color: var(--text);
+}
+
+button.secondary:hover,
+a.button.secondary:hover {
+  color: var(--text);
+  border-color: var(--border-strong);
+  background: var(--surface-2);
+}
+
+button.danger {
+  border-color: var(--err);
+  background: var(--err);
+  color: #fff;
+}
+
+button.danger:hover {
+  border-color: var(--err);
+  background: color-mix(in srgb, var(--err) 85%, black);
+}
+
+button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* collapsible add-row panel */
+.panel {
+  margin: 0 0 1rem;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  background: var(--surface);
+  box-shadow: var(--shadow-sm);
+}
+
+.panel > summary {
+  padding: 0.6rem 0.95rem;
+  color: var(--accent);
+  font-weight: 600;
+  cursor: pointer;
+  list-style: none;
+  user-select: none;
+}
+
+.panel > summary::-webkit-details-marker {
+  display: none;
+}
+
+.panel > summary {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.panel > summary::after {
+  content: "";
+  color: var(--muted);
+  font-size: 12px;
+  font-weight: 500;
+}
+
+.panel[open] > summary {
+  border-bottom: 1px solid var(--border);
+}
+
+.panel[open] > summary::after {
+  content: "Close ✕";
+}
+
+.panel[open] > summary:hover::after {
+  color: var(--text);
+}
+
+.panel > form {
+  padding: 1rem 0.95rem 0.25rem;
+}
+
+.panel .actions {
+  margin: 0 0 0.75rem;
+}
+
+/* delete-row column */
+th.action,
+td.action {
+  width: 1%;
+  padding: 0 0.3rem;
+  text-align: center;
+}
+
+td.action form {
+  margin: 0;
+}
+
+button.icon {
+  justify-content: center;
+  width: 24px;
+  height: 24px;
+  padding: 0;
+  border-color: transparent;
+  background: transparent;
+  color: var(--muted);
+  font-size: 16px;
+  line-height: 1;
+  box-shadow: none;
+  opacity: 0;
+}
+
+tr:hover button.icon,
+button.icon:focus-visible {
+  opacity: 1;
+}
+
+button.icon:hover {
+  border-color: transparent;
+  background: var(--err-soft);
+  color: var(--err);
+}
+
+@media (hover: none) {
+  button.icon {
+    opacity: 1;
+  }
+}
+
+/* structure cards */
+.cards {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(17rem, 1fr));
+  gap: 0.9rem;
+}
+
+.card {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 0.6rem;
+  padding: 1rem;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  background: var(--surface);
+  box-shadow: var(--shadow-sm);
+}
+
+.card > input,
+.card > select {
+  align-self: stretch;
+}
+
+.card h3 {
+  margin: 0;
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.card p {
+  margin: 0;
+}
+
+.card.danger {
+  border-color: color-mix(in srgb, var(--err) 30%, var(--border));
+}
+
+.card.danger h3 {
+  color: var(--err);
+}
+
+.inline-fields {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  align-self: stretch;
+}
+
+/* create-table column editor */
+.form-table td {
+  padding: 0.35rem 0.5rem;
+}
+
+.form-table td.check,
+.form-table th:nth-child(n + 3):nth-child(-n + 5) {
+  text-align: center;
+}
+
+.form-table tbody tr:hover {
+  background: transparent;
+}

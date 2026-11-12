@@ -1,0 +1,88 @@
+/* ---------- forms ---------- */
+textarea {
+  display: block;
+  width: 100%;
+  padding: 0.85rem 1rem;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  background: var(--surface);
+  color: var(--text);
+  font: 13px/1.6 var(--mono);
+  resize: vertical;
+  box-shadow: var(--shadow-sm);
+  transition:
+    border-color 0.12s,
+    box-shadow 0.12s;
+}
+
+textarea:focus {
+  outline: none;
+  border-color: var(--accent);
+  box-shadow: var(--ring);
+}
+
+.actions {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  margin: 0.75rem 0 1.25rem;
+  color: var(--muted);
+  font-size: 12px;
+}
+
+button,
+a.button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.4rem;
+  padding: 0.45rem 1rem;
+  border: 1px solid var(--accent);
+  border-radius: var(--radius-sm);
+  background: var(--accent);
+  color: var(--on-accent);
+  font: 600 13px var(--sans);
+  cursor: pointer;
+  box-shadow: var(--shadow-sm);
+  transition:
+    background-color 0.12s,
+    border-color 0.12s,
+    transform 0.05s;
+}
+
+button:hover,
+a.button:hover {
+  color: var(--on-accent);
+  text-decoration: none;
+  border-color: var(--accent-hover);
+  background: var(--accent-hover);
+}
+
+button:active {
+  transform: translateY(1px);
+}
+
+/* A button that looks like a link (POST actions inside text, e.g. pager, "open in SQL query"). */
+button.link {
+  display: inline;
+  padding: 0;
+  border: 0;
+  background: none;
+  box-shadow: none;
+  color: var(--accent);
+  font: inherit;
+}
+
+button.link:hover {
+  border: 0;
+  background: none;
+  color: var(--accent-hover);
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+
+/* A form that only wraps a button in running text. */
+form.inline-form,
+.pager form {
+  display: inline;
+}

@@ -1,0 +1,32 @@
+/* ---------- messages ---------- */
+.meta {
+  color: var(--muted);
+  font-size: 12px;
+}
+
+.error,
+.ok {
+  padding: 0.7rem 0.95rem;
+  border: 1px solid;
+  border-radius: var(--radius);
+  font-size: 13px;
+  white-space: pre-wrap;
+}
+
+.error {
+  border-color: color-mix(in srgb, var(--err) 25%, transparent);
+  background: var(--err-soft);
+  color: var(--err);
+  font-family: var(--mono);
+}
+
+.ok {
+  border-color: color-mix(in srgb, var(--ok) 25%, transparent);
+  background: var(--ok-soft);
+  color: var(--ok);
+}
+
+#nav .error {
+  margin: 0.5rem 0;
+  font-size: 12px;
+}

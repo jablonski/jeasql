@@ -1,0 +1,70 @@
+/* ---------- typography ---------- */
+h1 {
+  margin: 0 0 0.3rem;
+  font-size: 1.6rem;
+  font-weight: 700;
+  line-height: 1.2;
+  letter-spacing: -0.02em;
+  overflow-wrap: anywhere;
+}
+
+h1 + p,
+h1 + .lead {
+  margin: 0 0 1.25rem;
+  color: var(--muted);
+}
+
+h2 {
+  margin: 2.25rem 0 0.75rem;
+  font-size: 0.8rem;
+  font-weight: 600;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  color: var(--text-2);
+}
+
+p {
+  margin: 0.6rem 0;
+}
+
+ul {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  background: var(--surface);
+}
+
+li {
+  padding: 0.55rem 0.9rem;
+  border-bottom: 1px solid var(--border);
+}
+
+li:last-child {
+  border-bottom: 0;
+}
+
+code {
+  padding: 0.12em 0.4em;
+  border-radius: 4px;
+  background: var(--surface-2);
+  font: 0.88em var(--mono);
+}
+
+pre {
+  margin: 0;
+  padding: 1rem 1.15rem;
+  overflow-x: auto;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  background: var(--surface);
+  line-height: 1.6;
+  white-space: pre-wrap;
+}
+
+pre > code {
+  padding: 0;
+  background: none;
+  font-size: 12.5px;
+}

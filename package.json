@@ -1,0 +1,27 @@
+{
+  "name": "jeasql",
+  "license": "MIT",
+  "type": "module",
+  "scripts": {
+    "start": "jeasx start",
+    "build": "jeasx build",
+    "dev": "jeasx dev",
+    "clean": "jeasx clean",
+    "test": "node --test",
+    "check": "tsc"
+  },
+  "dependencies": {
+    "@fastify/cookie": "11.1.5",
+    "@fastify/multipart": "10.1.8",
+    "jeasx": "3.0.1"
+  },
+  "devDependencies": {
+    "typescript": "7.0.2"
+  },
+  "engines": {
+    "node": ">=24"
+  },
+  "allowScripts": {
+    "esbuild": true
+  }
+}

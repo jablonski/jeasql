@@ -1,0 +1,39 @@
+/* ---------- SQL completion ---------- */
+.sql-complete {
+  position: absolute;
+  z-index: 50;
+  min-width: 200px;
+  max-width: 360px;
+  max-height: 240px;
+  margin: 2px 0 0;
+  padding: 4px;
+  overflow-y: auto;
+  list-style: none;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  background: var(--surface);
+  box-shadow: 0 8px 24px rgb(0 0 0 / 0.15);
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: 13px;
+}
+
+.sql-complete li {
+  display: flex;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 0.2rem 0.5rem;
+  border-radius: 4px;
+  cursor: pointer;
+  white-space: nowrap;
+}
+
+.sql-complete li::after {
+  content: attr(data-kind);
+  color: var(--text-2);
+  font-size: 11px;
+}
+
+.sql-complete li.selected {
+  background: var(--accent-soft);
+  color: var(--accent);
+}

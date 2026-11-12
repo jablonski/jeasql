@@ -1,0 +1,166 @@
+/* ---------- open database page ---------- */
+.open-page {
+  display: flex;
+  flex-direction: column;
+  gap: 2rem;
+  max-width: 44rem;
+}
+
+.hero {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  padding: 2rem;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  background:
+    radial-gradient(circle at 100% 0, var(--accent-soft), transparent 55%), var(--surface);
+  box-shadow: var(--shadow);
+}
+
+.hero h1,
+.hero p {
+  margin: 0;
+}
+
+.hero-icon {
+  display: grid;
+  place-items: center;
+  width: 52px;
+  height: 52px;
+  border-radius: 14px;
+  background: var(--accent-soft);
+  color: var(--accent);
+}
+
+.open-form {
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+  margin-top: 0.5rem;
+}
+
+.open-input {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.open-input input:not([type="checkbox"]) {
+  padding: 0.65rem 0.8rem;
+  font: 14px var(--mono);
+}
+
+.open-input button {
+  padding-inline: 1.4rem;
+}
+
+.open-options {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  gap: 0.5rem;
+}
+
+.open-options code {
+  font-size: 11px;
+}
+
+.db-cards {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(13rem, 1fr));
+  gap: 0.75rem;
+}
+
+.db-cards form {
+  display: contents;
+}
+
+button.db-card {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  justify-content: flex-start;
+  gap: 0.2rem;
+  min-width: 0;
+  padding: 0.85rem 1rem;
+  border: 1px solid var(--border);
+  background: var(--surface);
+  color: var(--text);
+  font-weight: 400;
+  text-align: left;
+}
+
+button.db-card:hover {
+  border-color: var(--accent);
+  background: var(--accent-soft);
+}
+
+button.db-card.current {
+  border-color: var(--accent);
+  box-shadow: var(--ring);
+}
+
+.db-card strong,
+.db-card-dir {
+  max-width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.db-card-dir {
+  color: var(--muted);
+  font: 11px var(--mono);
+}
+
+@media (max-width: 600px) {
+  .hero {
+    padding: 1.25rem;
+  }
+  .open-input {
+    flex-direction: column;
+  }
+}
+
+.open-current {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.open-current-path {
+  display: flex;
+  flex: 1;
+  align-items: baseline;
+  gap: 0.6rem;
+  min-width: 0;
+  padding: 0.65rem 0.8rem;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  background: var(--surface-2);
+}
+
+.open-current-label {
+  flex: none;
+  color: var(--muted);
+  font: 600 11px var(--sans);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.open-current-file {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font: 14px var(--mono);
+}
+
+.open-current button {
+  padding-inline: 1.4rem;
+}
+
+@media (max-width: 600px) {
+  .open-current {
+    flex-direction: column;
+  }
+}

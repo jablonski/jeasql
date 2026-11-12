@@ -1,0 +1,149 @@
+/* ---------- confirm dialog ---------- */
+dialog.confirm {
+  width: min(440px, calc(100vw - 32px));
+  padding: 0;
+  overflow: hidden;
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  background: var(--surface);
+  color: var(--text);
+  box-shadow:
+    0 1px 2px rgb(16 24 40 / 0.06),
+    0 24px 48px -12px rgb(16 24 40 / 0.28);
+}
+
+dialog.confirm::backdrop {
+  background: rgb(16 24 40 / 0.5);
+  backdrop-filter: blur(3px);
+}
+
+dialog.confirm[open] {
+  animation: confirm-in 0.16s cubic-bezier(0.2, 0.9, 0.3, 1.2);
+}
+
+dialog.confirm[open]::backdrop {
+  animation: confirm-fade 0.16s ease-out;
+}
+
+@keyframes confirm-in {
+  from {
+    opacity: 0;
+    transform: translateY(8px) scale(0.96);
+  }
+}
+
+@keyframes confirm-fade {
+  from {
+    opacity: 0;
+  }
+}
+
+dialog.confirm .confirm-body {
+  display: flex;
+  gap: 14px;
+  align-items: flex-start;
+  padding: 1.35rem 1.35rem 1.25rem;
+}
+
+/* Round badge with the icon: red for destructive actions, accent otherwise. */
+dialog.confirm .confirm-icon {
+  display: grid;
+  flex: none;
+  place-items: center;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background: var(--accent-soft);
+  color: var(--accent);
+}
+
+dialog.confirm.danger .confirm-icon {
+  background: var(--err-soft);
+  color: var(--err);
+}
+
+dialog.confirm .icon-danger,
+dialog.confirm.danger .icon-info {
+  display: none;
+}
+
+dialog.confirm.danger .icon-danger {
+  display: block;
+}
+
+dialog.confirm h2 {
+  margin: 0.45rem 0 0;
+  font-size: 15px;
+  font-weight: 600;
+  line-height: 1.4;
+  letter-spacing: normal;
+  text-transform: none;
+  color: var(--text);
+  overflow-wrap: anywhere;
+}
+
+dialog.confirm p {
+  margin: 0.35rem 0 0;
+  color: var(--text-2);
+  font-size: 13.5px;
+  line-height: 1.5;
+}
+
+dialog.confirm p:empty {
+  display: none;
+}
+
+dialog.confirm .actions {
+  justify-content: flex-end;
+  gap: 8px;
+  margin: 0;
+  padding: 0.8rem 1.35rem;
+  border-top: 1px solid var(--border);
+  background: var(--surface-2);
+}
+
+dialog.confirm button {
+  min-width: 88px;
+}
+
+dialog.confirm button.secondary {
+  border-color: var(--border-strong);
+  background: var(--surface);
+  color: var(--text-2);
+}
+
+dialog.confirm button.secondary:hover {
+  color: var(--text);
+}
+
+dialog.confirm button.danger {
+  border-color: var(--err);
+  background: var(--err);
+  color: var(--on-accent);
+}
+
+dialog.confirm button.danger:hover {
+  border-color: color-mix(in srgb, var(--err) 85%, black);
+  background: color-mix(in srgb, var(--err) 85%, black);
+}
+
+dialog.confirm button:focus-visible {
+  outline: none;
+  box-shadow: var(--ring);
+}
+
+@media (max-width: 480px) {
+  dialog.confirm .actions {
+    flex-direction: column-reverse;
+  }
+  dialog.confirm button {
+    width: 100%;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  dialog.confirm[open],
+  dialog.confirm[open]::backdrop {
+    animation: none;
+  }
+}
