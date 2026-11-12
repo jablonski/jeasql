@@ -56,7 +56,8 @@ export default function ({ request }: RouteProps) {
       <h1>{name}</h1>
       {/* A div, not a p: a <form> inside a <p> makes the parser close the p early. */}
       <div class="lead">
-        {type} · {countLabel(total)}{filtered ? " matching" : ""} rows ·{" "}
+        {type} · {countLabel(total)}
+        {filtered ? " matching" : ""} rows ·{" "}
         {filtered && (
           <>
             <a href={tableUrl(name, { sort, dir })}>clear filters</a> ·{" "}
@@ -71,7 +72,9 @@ export default function ({ request }: RouteProps) {
         {isTable && " · double-click a cell to edit"}
       </div>
 
-      {isTable && <AddRow name={name} cols={cols} rowidAlias={rowidAlias} blobColumns={blobColumns} />}
+      {isTable && (
+        <AddRow name={name} cols={cols} rowidAlias={rowidAlias} blobColumns={blobColumns} />
+      )}
 
       <DataTable
         columns={columnNames}
@@ -92,12 +95,7 @@ export default function ({ request }: RouteProps) {
           values: filters,
         }}
       />
-      <Pager
-        page={page}
-        pages={pages}
-        stats={stats}
-        target={{ href: pageHref }}
-      />
+      <Pager page={page} pages={pages} stats={stats} target={{ href: pageHref }} />
 
       <ColumnList cols={cols} />
 

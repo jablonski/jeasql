@@ -72,13 +72,19 @@ export function runQuery(sql: string, page?: { limit: number; offset: number }) 
   // Several statements, or a trigger (whose body has ";" inside, so the count is unreliable
   // and preparing it would silently drop anything after it): run them all, return no rows.
   if (statements.length !== 1 || parsed.trigger) {
-    return noRows([], countChanges(() => execAtomic(parsed)));
+    return noRows(
+      [],
+      countChanges(() => execAtomic(parsed)),
+    );
   }
   const statement = prepareBig(statements[0]);
   // Names from the query itself: wrapped in a subquery, SQLite renames duplicates ("id:1").
   const columns = statement.columns().map((column) => column.name);
   if (!columns.length) {
-    return noRows(columns, countChanges(() => statement.run()));
+    return noRows(
+      columns,
+      countChanges(() => statement.run()),
+    );
   }
   const paged = Boolean(page) && isPageable(parsed);
   // Newlines around the query, so a trailing "-- comment" can't swallow the ")".

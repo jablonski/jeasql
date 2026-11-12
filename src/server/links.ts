@@ -20,7 +20,10 @@ export const tableUrl = (
     page,
     filters,
     ...params
-  }: { sort?: string; dir?: SortDir; page?: number; filters?: Filters } & Record<string, unknown> = {},
+  }: { sort?: string; dir?: SortDir; page?: number; filters?: Filters } & Record<
+    string,
+    unknown
+  > = {},
 ) =>
   url("/show-table", {
     name,
