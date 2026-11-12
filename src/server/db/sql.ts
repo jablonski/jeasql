@@ -46,6 +46,10 @@ export function parseNumber(value: string): bigint | number | undefined {
 /** True if two table or column names are the same: SQLite matches names case-insensitively. */
 export const sameSqlName = (a: string, b: string) => a.toLowerCase() === b.toLowerCase();
 
+/** The entry of `names` matching `name` (see sameSqlName), as declared; undefined if none. */
+export const findName = (names: string[], name: unknown) =>
+  names.find((declared) => sameSqlName(declared, String(name ?? "")));
+
 /** Quotes an identifier (table or column name) for safe use in SQL. */
 export const quote = (name: string) => `"${name.replaceAll('"', '""')}"`;
 

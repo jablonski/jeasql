@@ -1,7 +1,15 @@
 // Reading and changing single rows and cells.
 import { db, holdCursor } from "./connection.ts";
 import { assertTable, findObject, hasBlobAffinity, tableColumns } from "./schema.ts";
-import { PAGE_CLAUSE, pageParams, parseNumber, quote, prepareBig, sameSqlName } from "./sql.ts";
+import {
+  findName,
+  PAGE_CLAUSE,
+  pageParams,
+  parseNumber,
+  quote,
+  prepareBig,
+  sameSqlName,
+} from "./sql.ts";
 import { filterClause } from "./filter.ts";
 import type { Filters } from "./filter.ts";
 import { keyValue } from "../rowKey.ts";
@@ -45,9 +53,9 @@ export function describeTable(name: string): TableInfo | undefined {
   };
 }
 
-/** The declared name of a column of `info` (see sameSqlName); undefined if there is none. */
+/** The declared name of a column of `info` (see findName); undefined if there is none. */
 export function findColumn(info: Pick<TableInfo, "columnNames">, name: string | undefined) {
-  return info.columnNames.find((column) => sameSqlName(column, String(name ?? "")));
+  return findName(info.columnNames, name);
 }
 
 /** Like describeTable, but throws unless it is a table (views can't be changed). */
@@ -205,9 +213,10 @@ function locateRow(table: string, key: RowKey) {
   };
 }
 
-/** The column named `name` (see sameSqlName); throws if there is none. */
+/** The column named `name` (see findName); throws if there is none. */
 function requireColumn(cols: Column[], name: string) {
-  const columnDef = cols.find((column) => sameSqlName(column.name, name));
+  const declared = findName(cols.map((column) => column.name), name);
+  const columnDef = cols.find((column) => column.name === declared);
   if (!columnDef) {
     throw new Error(`Unknown column: ${name}`);
   }
