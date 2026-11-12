@@ -1,3 +1,5 @@
+// Building links with query parameters.
+
 /**
  * Builds an app link: url("/show-table", { name }) → "/show-table?name=…".
  * Params that are undefined, null or "" are left out.

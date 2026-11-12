@@ -2,6 +2,8 @@
 import type { SQLInputValue } from "node:sqlite";
 import { db, holdCursor } from "./connection.ts";
 import type { Filters } from "./filter.ts";
+import type { PageSlice } from "./paging.ts";
+import { PAGE_CLAUSE, pageParams } from "./paging.ts";
 import { filterClause } from "./filter.ts";
 import type { RowKey } from "./rowKey.ts";
 import { keyValue } from "./rowKey.ts";
@@ -17,14 +19,15 @@ import {
 import type { Row } from "./sql.ts";
 import {
   findName,
-  PAGE_CLAUSE,
-  pageParams,
   parseNumber,
   prepareBig,
   quote,
   quoteList,
   sameSqlName,
 } from "./sql.ts";
+
+/** A value to store in a cell: typed text, an uploaded file, or NULL. */
+export type CellInput = string | Uint8Array | null;
 
 /** Sort direction of a table page. */
 export type SortDir = "asc" | "desc";
@@ -45,21 +48,31 @@ export type TableInfo = {
   generatedColumns: string[];
 };
 
-/** Everything about a table or view in one go; undefined if there is none by that name. */
-export function describeTable(name: string): TableInfo | undefined {
+/** The part of TableInfo that reading and changing single rows needs. */
+type RowTarget = Pick<TableInfo, "object" | "cols" | "keyColumns" | "withoutRowid">;
+
+/** A table or view with its columns and row key; undefined if there is none by that name. */
+function rowTarget(name: string): RowTarget | undefined {
   const object = findObject(name);
   if (!object) {
     return undefined;
   }
   const cols = tableColumns(object.name);
   const withoutRowid = isWithoutRowid(object);
+  return { object, cols, keyColumns: keyColumnsOf(object, cols, withoutRowid), withoutRowid };
+}
+
+/** Everything about a table or view in one go; undefined if there is none by that name. */
+export function describeTable(name: string): TableInfo | undefined {
+  const target = rowTarget(name);
+  if (!target) {
+    return undefined;
+  }
+  const { object, cols, withoutRowid } = target;
   const namesOf = (columns: Column[]) => columns.map((column) => column.name);
   return {
-    object,
-    cols,
+    ...target,
     columnNames: namesOf(cols),
-    keyColumns: keyColumnsOf(object, cols, withoutRowid),
-    withoutRowid,
     rowidAlias: rowidAliasOf(object, cols, withoutRowid),
     blobColumns: namesOf(
       cols.filter((column) => hasBlobAffinity(column.type) && !isGenerated(column)),
@@ -73,11 +86,14 @@ export function findColumn(info: TableInfo, name: string | undefined) {
   return findName(info.columnNames, name);
 }
 
-/** Like describeTable, but throws unless it is a table (views can't be changed). */
-function requireTableInfo(name: string) {
-  const info = describeTable(name);
-  assertTable(info?.object, name);
-  return info!;
+/**
+ * The table `name` for row operations; throws unless it is a table (views can't be
+ * changed). Skips what only pages need (e.g. rowidAlias, which costs another PRAGMA).
+ */
+function requireRowTarget(name: string) {
+  const target = rowTarget(name);
+  assertTable(target?.object, name);
+  return target!;
 }
 
 /** True for a table declared WITHOUT ROWID (asks SQLite instead of parsing its SQL). Exported for tests. */
@@ -149,7 +165,7 @@ export function readTablePage(
     limit,
     offset,
     filters,
-  }: { sort?: string; dir?: SortDir; limit: number; offset: number; filters?: Filters },
+  }: { sort?: string; dir?: SortDir; filters?: Filters } & PageSlice,
 ) {
   const sortColumn = findName(columnNames, sort);
   const keySelect = keyColumns.map((name) => `, ${quote(name)}`).join("");
@@ -203,7 +219,7 @@ export function updateCell(
   table: string,
   key: RowKey,
   name: string,
-  value: string | Uint8Array | null,
+  value: CellInput,
 ) {
   const { cols, keyColumns, where, values } = locateRow(table, key);
   const columnDef = requireColumn(cols, name);
@@ -248,7 +264,7 @@ function readCell(table: string, column: string, where: string, values: SQLInput
  * Throws if there is no such table or the key is incomplete.
  */
 function locateRow(table: string, key: RowKey) {
-  const { cols, keyColumns } = requireTableInfo(table);
+  const { cols, keyColumns } = requireRowTarget(table);
   if (!keyColumns.length || keyColumns.some((name) => !Object.hasOwn(key ?? {}, name))) {
     throw new Error("Row cannot be identified");
   }
@@ -262,7 +278,11 @@ function locateRow(table: string, key: RowKey) {
 
 /** The column named `name` (see findName); throws if there is none. */
 function requireColumn(cols: Column[], name: string) {
-  const columnDef = cols.find((column) => sameSqlName(column.name, name));
+  const declared = findName(
+    cols.map((column) => column.name),
+    name,
+  );
+  const columnDef = cols.find((column) => column.name === declared);
   if (!columnDef) {
     throw new Error(`Unknown column: ${name}`);
   }
@@ -273,7 +293,7 @@ function requireColumn(cols: Column[], name: string) {
  * The value to bind for a column, the same for inserts and cell edits.
  * BLOB affinity keeps text as text, so typed numbers become numbers there.
  */
-function bindValue(column: Column, value: string | Uint8Array | null) {
+function bindValue(column: Column, value: CellInput) {
   return hasBlobAffinity(column.type) && typeof value === "string"
     ? (parseNumber(value) ?? value)
     : value;
@@ -283,8 +303,8 @@ function bindValue(column: Column, value: string | Uint8Array | null) {
  * Inserts a row. Columns missing from `values` get their default value.
  * `rowid` is the new row's rowid, undefined for WITHOUT ROWID tables (which have none).
  */
-export function insertRow(table: string, values: Record<string, string | Uint8Array | null>) {
-  const info = requireTableInfo(table);
+export function insertRow(table: string, values: Record<string, CellInput>) {
+  const info = requireRowTarget(table);
   const cols = info.cols.filter((column) => Object.hasOwn(values, column.name));
   const names = cols.map((column) => column.name);
   const sql = names.length

@@ -1,12 +1,12 @@
 import { html } from "jsx-async-runtime";
+import ConfirmDialog from "./ConfirmDialog.tsx";
+import Header from "./Header.tsx";
+import Sidebar from "./Sidebar.tsx";
 import { dbPath, inTransaction } from "../server/db.ts";
 import { readFlash } from "../server/http/flash.ts";
 import { queryParams } from "../server/http/request.ts";
 import { url } from "../server/http/url.ts";
 import type { ThisContext } from "../types.d.ts";
-import ConfirmDialog from "./ConfirmDialog.tsx";
-import Header from "./Header.tsx";
-import Sidebar from "./Sidebar.tsx";
 
 /**
  * Page frame. With `bare`, there is no header or sidebar: no menu, database info or logout

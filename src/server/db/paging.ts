@@ -25,6 +25,18 @@ export function pageCount({ count, capped }: RowCount) {
   return capped ? undefined : Math.max(1, Math.ceil((count ?? 0) / PAGE_SIZE));
 }
 
+/** The rows to read: at most `limit`, after skipping `offset`. */
+export type PageSlice = { limit: number; offset: number };
+
+/** LIMIT/OFFSET with named parameters (see pageParams); unlikely to clash with a query's own. */
+export const PAGE_CLAUSE = "LIMIT $jeasql_limit OFFSET $jeasql_offset";
+
+/** Values for PAGE_CLAUSE. */
+export const pageParams = ({ limit, offset }: PageSlice) => ({
+  jeasql_limit: limit,
+  jeasql_offset: offset,
+});
+
 /** Number of rows before the given page. */
 export function pageOffset(page: number) {
   return (page - 1) * PAGE_SIZE;

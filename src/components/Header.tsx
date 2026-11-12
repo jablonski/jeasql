@@ -1,8 +1,8 @@
 import { basename } from "node:path";
-import { cx } from "../server/lib/classes.ts";
-import { url } from "../server/http/url.ts";
 import Icon from "./Icon.tsx";
 import Wordmark from "./Wordmark.tsx";
+import { url } from "../server/http/url.ts";
+import { cx } from "../server/lib/classes.ts";
 
 /** Top bar: menu button, brand, database switcher and logout. */
 export default function Header({ file, route }: { file: string; route: string }) {

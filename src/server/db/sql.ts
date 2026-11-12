@@ -1,20 +1,19 @@
 // Running SQL and parsing it into statements.
 import { db, holdCursor } from "./connection.ts";
+import type { PageSlice } from "./paging.ts";
+import { PAGE_CLAUSE, pageParams } from "./paging.ts";
 
 /** One row of a table or query result, values in column order. */
 export type Row = unknown[];
 
+/** Start of a CREATE TRIGGER, as regex source (see CREATE_TRIGGER, stripTriggers). */
+const CREATE_TRIGGER_SOURCE = String.raw`\bCREATE\s+(TEMP\s+|TEMPORARY\s+)?TRIGGER\b`;
+
 /** Finds a CREATE TRIGGER in SQL with strings and comments blanked out (see parseSql). */
-const CREATE_TRIGGER = /\bCREATE\s+(TEMP\s+|TEMPORARY\s+)?TRIGGER\b/i;
+const CREATE_TRIGGER = new RegExp(CREATE_TRIGGER_SOURCE, "i");
 
-/** LIMIT/OFFSET with named parameters (see pageParams); unlikely to clash with a query's own. */
-export const PAGE_CLAUSE = "LIMIT $jeasql_limit OFFSET $jeasql_offset";
-
-/** Values for PAGE_CLAUSE. */
-export const pageParams = ({ limit, offset }: { limit: number; offset: number }) => ({
-  jeasql_limit: limit,
-  jeasql_offset: offset,
-});
+/** A whole trigger: its body ends with "; END" (a CASE … END never directly follows a ";"). */
+const TRIGGER_BODY = new RegExp(String.raw`${CREATE_TRIGGER_SOURCE}[\s\S]*?\bBEGIN\b[\s\S]*?;\s*END\b`, "gi");
 
 /**
  * Numeric literals as SQL writes them (42, -1.5, .5, 1., 1e5, +3, 0x1F), e.g. for DEFAULT.
@@ -72,7 +71,7 @@ export const quoteList = (names: string[]) => names.map(quote).join(", ");
  * `paged` tells whether that happened; callers use it instead of checking isPageable
  * themselves, so the SQL is parsed only once.
  */
-export function runQuery(sql: string, page?: { limit: number; offset: number }) {
+export function runQuery(sql: string, page?: PageSlice) {
   const parsed = parseSql(sql);
   const { statements } = parsed;
   // Several statements, or a trigger (whose body has ";" inside, so the count is unreliable
@@ -152,15 +151,9 @@ function mustRunUnwrapped(code: string) {
     .some((statement) => TRANSACTION_CONTROL.test(statement));
 }
 
-/**
- * Blanks out trigger bodies, whose BEGIN … END is no transaction. A trigger body
- * ends with "; END" (a CASE … END never directly follows a ";").
- */
+/** Blanks out trigger bodies (see TRIGGER_BODY), whose BEGIN … END is no transaction. */
 function stripTriggers(code: string) {
-  return code.replace(
-    /\bCREATE\s+(TEMP\s+|TEMPORARY\s+)?TRIGGER\b[\s\S]*?\bBEGIN\b[\s\S]*?;\s*END\b/gi,
-    " ",
-  );
+  return code.replace(TRIGGER_BODY, " ");
 }
 
 /**
@@ -241,12 +234,22 @@ export function parseSql(sql: string): ParsedSql {
   };
 }
 
+/** Statements usable as a subquery, so they can be wrapped for paging. */
+const PAGEABLE_START = /^\s*(SELECT|VALUES|WITH)\b/i;
+
+/** Statements that may only read; unlike PAGEABLE_START also EXPLAIN (no subquery). */
+const READ_START = /^\s*(SELECT|VALUES|WITH|EXPLAIN)\b/i;
+
+/** Keywords that write or change state; any of them makes SQL count as writing. */
+const WRITE_KEYWORD =
+  /\b(INSERT|UPDATE|DELETE|REPLACE|UPSERT|CREATE|DROP|ALTER|ATTACH|DETACH|PRAGMA|VACUUM|REINDEX|ANALYZE|BEGIN|COMMIT|ROLLBACK|SAVEPOINT|RELEASE)\b/i;
+
 /**
  * True if a query can be paged inside SQL: read-only (so running it again per
  * page repeats no write) and usable as a subquery (EXPLAIN is not).
  */
 export function isPageable(parsed: ParsedSql) {
-  return isReadOnly(parsed) && /^\s*(SELECT|VALUES|WITH)\b/i.test(parsed.code);
+  return isReadOnly(parsed) && PAGEABLE_START.test(parsed.code);
 }
 
 /**
@@ -257,11 +260,5 @@ export function isReadOnly({ statements, code }: ParsedSql) {
   // `code` has strings and comments blanked out, so 'DELETE' in a string literal
   // or a comment doesn't count as a write. This errs on the safe side: the
   // function call replace(...) also matches REPLACE, so such a query counts as writing.
-  return (
-    statements.length === 1 &&
-    /^\s*(SELECT|VALUES|WITH|EXPLAIN)\b/i.test(code) &&
-    !/\b(INSERT|UPDATE|DELETE|REPLACE|UPSERT|CREATE|DROP|ALTER|ATTACH|DETACH|PRAGMA|VACUUM|REINDEX|ANALYZE|BEGIN|COMMIT|ROLLBACK|SAVEPOINT|RELEASE)\b/i.test(
-      code,
-    )
-  );
+  return statements.length === 1 && READ_START.test(code) && !WRITE_KEYWORD.test(code);
 }

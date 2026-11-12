@@ -133,9 +133,9 @@ describe("tryCount", () => {
   test("counts exactly, or stops after limit + 1 rows", () => {
     db().exec("CREATE TABLE counted (x); INSERT INTO counted VALUES (1), (2), (3);");
     assert.equal(tryCount("counted"), 3);
-    assert.equal(tryCount("counted", 5), 3);
-    assert.equal(tryCount("counted", 2), 3); // above the limit: "2+"
-    assert.equal(tryCount("counted", 1), 2);
+    assert.equal(tryCount("counted", { limit: 5 }), 3);
+    assert.equal(tryCount("counted", { limit: 2 }), 3); // above the limit: "2+"
+    assert.equal(tryCount("counted", { limit: 1 }), 2);
     assert.equal(tryCount("missing"), undefined);
   });
 });
@@ -158,7 +158,7 @@ describe("countRows", () => {
     assert.deepEqual(countRows("big"), { count: COUNT_LIMIT, capped: true });
     assert.equal(countLabel(countRows("big")), `${COUNT_LIMIT}+`);
     assert.equal(countLabel(countRows("missing")), "—");
-    assert.deepEqual(countRows("counted", 2), { count: 2, capped: true });
+    assert.deepEqual(countRows("counted", { limit: 2 }), { count: 2, capped: true });
   });
 });
 

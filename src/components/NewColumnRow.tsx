@@ -1,7 +1,7 @@
-import { checked } from "../server/lib/fields.ts";
+import TypeSelect from "./TypeSelect.tsx";
 import { columnField } from "../server/http/forms.ts";
 import type { ColumnField } from "../server/http/forms.ts";
-import TypeSelect from "./TypeSelect.tsx";
+import { checked } from "../server/lib/fields.ts";
 
 /**
  * One column row of the create-table form; fields are named by columnField.

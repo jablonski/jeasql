@@ -1,8 +1,8 @@
 import { basename, dirname } from "node:path";
-import { cx } from "../server/lib/classes.ts";
+import HiddenFields from "./HiddenFields.tsx";
 import { fileInfo } from "../server/files/files.ts";
 import { url } from "../server/http/url.ts";
-import HiddenFields from "./HiddenFields.tsx";
+import { cx } from "../server/lib/classes.ts";
 
 /** Clickable cards, each posting its path to /open-database. */
 export default function DatabaseFiles({

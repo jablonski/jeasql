@@ -1,14 +1,14 @@
 import DataTable from "../components/DataTable.tsx";
+import type { RowStats } from "../components/DataTable.tsx";
 import ErrorMessage from "../components/ErrorMessage.tsx";
 import Layout from "../components/Layout.tsx";
 import Pager from "../components/Pager.tsx";
 import QuerySummary, { elapsed } from "../components/QuerySummary.tsx";
 import { PAGE_SIZE, pageOffset, parsePage, runQuery, schemaMap } from "../server/db.ts";
-import { attempt } from "../server/lib/errors.ts";
-import { trimmed } from "../server/lib/fields.ts";
 import { formBody } from "../server/http/request.ts";
 import { url } from "../server/http/url.ts";
-import type { RowStats } from "../components/DataTable.tsx";
+import { attempt } from "../server/lib/errors.ts";
+import { trimmed } from "../server/lib/fields.ts";
 import type { RouteProps } from "../types.d.ts";
 
 /**

@@ -1,3 +1,4 @@
+// Login: credentials from the environment, signed session cookies, logout and rate limiting.
 import type { FastifyRequest } from "fastify";
 import { createHmac, randomBytes, timingSafeEqual } from "node:crypto";
 

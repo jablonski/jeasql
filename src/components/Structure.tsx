@@ -1,8 +1,8 @@
-import { cx } from "../server/lib/classes.ts";
-import { url } from "../server/http/url.ts";
-import type { Column, TableOp } from "../server/db.ts";
-import TypeSelect from "./TypeSelect.tsx";
 import HiddenFields from "./HiddenFields.tsx";
+import TypeSelect from "./TypeSelect.tsx";
+import type { Column, TableOp } from "../server/db.ts";
+import { url } from "../server/http/url.ts";
+import { cx } from "../server/lib/classes.ts";
 
 /** Forms for structural changes (ALTER TABLE / DROP TABLE). */
 export default function Structure({ name, cols }: { name: string; cols: Column[] }) {

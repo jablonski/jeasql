@@ -1,12 +1,12 @@
+import ErrorMessage from "./ErrorMessage.tsx";
 import { listObjects } from "../server/db.ts";
 import type { SchemaObject } from "../server/db.ts";
-import { attempt } from "../server/lib/errors.ts";
-import { cx } from "../server/lib/classes.ts";
 import { tableUrl } from "../server/http/links.ts";
 import { perRequest } from "../server/http/memo.ts";
 import { url } from "../server/http/url.ts";
+import { cx } from "../server/lib/classes.ts";
+import { attempt } from "../server/lib/errors.ts";
 import type { ThisContext } from "../types.d.ts";
-import ErrorMessage from "./ErrorMessage.tsx";
 
 /** Side menu: SQL query, new table, and the tables and views of the open database. */
 export default function Sidebar(

@@ -40,7 +40,7 @@ export default function (this: ThisContext) {
                     <a href={tableUrl(name)}>{name}</a>
                   </td>
                   <td>{type}</td>
-                  <td class="num">{countLabel(countRows(name, OVERVIEW_COUNT_LIMIT))}</td>
+                  <td class="num">{countLabel(countRows(name, { limit: OVERVIEW_COUNT_LIMIT }))}</td>
                 </tr>
               ))}
             </tbody>

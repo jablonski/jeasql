@@ -1,6 +1,6 @@
-import { cx } from "../server/lib/classes.ts";
 import Icon from "./Icon.tsx";
 import type { IconName } from "./Icon.tsx";
+import { cx } from "../server/lib/classes.ts";
 
 /**
  * Centred card with an optional icon and a heading (open, login, 404 pages).

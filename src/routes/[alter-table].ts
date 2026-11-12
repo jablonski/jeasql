@@ -1,7 +1,7 @@
 import { alterTable } from "../server/db.ts";
-import { checked, field } from "../server/lib/fields.ts";
 import { redirectHome, redirectOnError, redirectTable } from "../server/http/redirect.ts";
 import { formBody, postOnly } from "../server/http/request.ts";
+import { checked, field } from "../server/lib/fields.ts";
 
 /** POST /alter-table – structural change on a table (see alterTable in server/db/schema.ts). */
 export default postOnly(function ({ request, reply }) {

@@ -3,6 +3,10 @@ import Hero from "../components/Hero.tsx";
 import HiddenFields from "../components/HiddenFields.tsx";
 import Layout from "../components/Layout.tsx";
 import Wordmark from "../components/Wordmark.tsx";
+import { safeNext } from "../server/http/redirect.ts";
+import { formBody, isPost, queryParams } from "../server/http/request.ts";
+import { url } from "../server/http/url.ts";
+import { field } from "../server/lib/fields.ts";
 import {
   authConfigured,
   checkCredentials,
@@ -13,10 +17,6 @@ import {
   recordFailedLogin,
   sessionToken,
 } from "../server/security/auth.ts";
-import { field } from "../server/lib/fields.ts";
-import { safeNext } from "../server/http/redirect.ts";
-import { formBody, isPost, queryParams } from "../server/http/request.ts";
-import { url } from "../server/http/url.ts";
 import type { RouteProps } from "../types.d.ts";
 
 /** GET shows the login form, POST checks the credentials and sets the session cookie. */

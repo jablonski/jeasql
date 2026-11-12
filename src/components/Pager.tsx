@@ -1,5 +1,5 @@
-import HiddenFields from "./HiddenFields.tsx";
 import type { RowStats } from "./DataTable.tsx";
+import HiddenFields from "./HiddenFields.tsx";
 
 /** Where page links lead: a URL per page, or a POST form re-sending `fields` with `page`. */
 export type PageTarget =

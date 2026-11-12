@@ -353,7 +353,7 @@ describe("filters", () => {
     assert.deepEqual(names({ age: "!null", name: "=Bob" }), ["Bob"]);
   });
   test("counts only matching rows", () => {
-    assert.deepEqual(countRows("people", undefined, { age: ">10" }), { count: 2, capped: false });
+    assert.deepEqual(countRows("people", { filters: { age: ">10" } }), { count: 2, capped: false });
   });
   test("parseFilters keeps known columns with their declared names", () => {
     assert.deepEqual(

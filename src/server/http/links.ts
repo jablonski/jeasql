@@ -1,10 +1,10 @@
 // Links between the app's pages.
-import type { Filters, SortDir } from "../db.ts";
+import type { Filters, RowKey, SortDir } from "../db.ts";
 import { filterParams, keyJson } from "../db.ts";
 import { url } from "./url.ts";
 
 /** Link that downloads one BLOB cell. */
-export const blobUrl = (table: string, column: string, key: Record<string, unknown>) =>
+export const blobUrl = (table: string, column: string, key: RowKey) =>
   url("/download-blob", { table, column, key: keyJson(key) });
 
 /**

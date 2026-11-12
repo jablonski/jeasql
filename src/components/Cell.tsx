@@ -1,5 +1,6 @@
-import { cx } from "../server/lib/classes.ts";
+import type { RowKey } from "../server/db.ts";
 import { blobUrl } from "../server/http/links.ts";
+import { cx } from "../server/lib/classes.ts";
 
 /** Longer cell texts are cut off; the full text (up to MAX_TITLE_TEXT) goes into the tooltip. */
 const MAX_CELL_TEXT = 80;
@@ -26,7 +27,7 @@ export default function Cell({
   value: unknown;
   table?: string;
   column?: string;
-  rowKey?: Record<string, unknown>;
+  rowKey?: RowKey;
   readOnly?: boolean;
 }) {
   const located = Boolean(table && column && rowKey);
@@ -91,8 +92,8 @@ function cellContent(kind: Kind, value: unknown, text: string, blobHref: string 
   if (kind === "null") {
     return "NULL";
   }
-  if (value instanceof Uint8Array) {
-    const label = `BLOB (${value.byteLength} bytes)`;
+  if (kind === "blob") {
+    const label = `BLOB (${(value as Uint8Array).byteLength} bytes)`;
     return blobHref ? (
       <a href={blobHref} download data-blob-link>
         {label}

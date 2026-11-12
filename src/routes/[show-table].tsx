@@ -1,14 +1,14 @@
-import DataTable from "../components/DataTable.tsx";
-import Definition from "../components/Definition.tsx";
-import Layout from "../components/Layout.tsx";
-import Pager from "../components/Pager.tsx";
 import AddRow from "../components/AddRow.tsx";
 import ColumnList from "../components/ColumnList.tsx";
-import Relations from "../components/Relations.tsx";
-import Structure from "../components/Structure.tsx";
+import DataTable from "../components/DataTable.tsx";
+import type { RowStats } from "../components/DataTable.tsx";
+import Definition from "../components/Definition.tsx";
 import ErrorMessage from "../components/ErrorMessage.tsx";
 import HiddenFields from "../components/HiddenFields.tsx";
-import { attempt } from "../server/lib/errors.ts";
+import Layout from "../components/Layout.tsx";
+import Pager from "../components/Pager.tsx";
+import Relations from "../components/Relations.tsx";
+import Structure from "../components/Structure.tsx";
 import {
   countLabel,
   countRows,
@@ -23,12 +23,12 @@ import {
   quote,
   readTablePage,
 } from "../server/db.ts";
-import { field } from "../server/lib/fields.ts";
+import type { Filters, SortDir } from "../server/db.ts";
 import { tableUrl } from "../server/http/links.ts";
 import { queryParams } from "../server/http/request.ts";
 import { url } from "../server/http/url.ts";
-import type { Filters, SortDir } from "../server/db.ts";
-import type { RowStats } from "../components/DataTable.tsx";
+import { attempt } from "../server/lib/errors.ts";
+import { field } from "../server/lib/fields.ts";
 import type { RouteProps } from "../types.d.ts";
 
 /**
@@ -141,7 +141,7 @@ function loadTable(name: string, query: Record<string, string>) {
   const filters: Filters = parseFilters(info.columnNames, query);
   // Counting is capped (see countRows): beyond that the number of pages is unknown,
   // and the pager offers "Next" as long as the table read one row past the page.
-  const total = countRows(info.object.name, undefined, filters);
+  const total = countRows(info.object.name, { filters });
   const pages = pageCount(total);
   const page = parsePage(query.page, pages);
   // Read lazily while the page streams; one row past the page tells whether there is a next one.

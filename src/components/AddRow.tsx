@@ -1,8 +1,8 @@
+import HiddenFields from "./HiddenFields.tsx";
 import { isGenerated } from "../server/db.ts";
+import type { Column } from "../server/db.ts";
 import { insertField } from "../server/http/forms.ts";
 import { url } from "../server/http/url.ts";
-import type { Column } from "../server/db.ts";
-import HiddenFields from "./HiddenFields.tsx";
 
 /**
  * Collapsible form to insert a row. Blank fields get the column default; generated

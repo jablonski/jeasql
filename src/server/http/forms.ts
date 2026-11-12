@@ -1,4 +1,5 @@
 // Turns submitted form fields into data for the db functions.
+import type { CellInput } from "../db.ts";
 import { dict } from "../lib/dict.ts";
 import { checked, trimmed } from "../lib/fields.ts";
 
@@ -29,7 +30,7 @@ export function insertValues(
   fields: Record<string, string>,
   files: Record<string, Uint8Array> = {},
 ) {
-  const values = dict<string | Uint8Array | null>();
+  const values = dict<CellInput>();
   const columns = new Set(
     [...Object.keys(fields), ...Object.keys(files)]
       .map(insertFieldColumn)

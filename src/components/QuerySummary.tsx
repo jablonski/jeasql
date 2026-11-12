@@ -1,5 +1,5 @@
-import { pageOffset } from "../server/db.ts";
 import type { RowStats } from "./DataTable.tsx";
+import { pageOffset } from "../server/db.ts";
 
 /** Milliseconds since `started` (a performance.now() value), as text. */
 export const elapsed = (started: number) => (performance.now() - started).toFixed(1);

@@ -1,8 +1,8 @@
 import { describeTable, findColumn, keyLabel, parseKey, readBlob } from "../server/db.ts";
-import { attempt } from "../server/lib/errors.ts";
-import { field } from "../server/lib/fields.ts";
 import { guessType } from "../server/files/guessType.ts";
 import { errorResponse, queryParams } from "../server/http/request.ts";
+import { attempt } from "../server/lib/errors.ts";
+import { field } from "../server/lib/fields.ts";
 import type { RouteProps } from "../types.d.ts";
 
 /** GET /download-blob?table=…&column=…&key={json} – downloads one BLOB cell. */
@@ -15,6 +15,7 @@ export default function ({ request, reply }: RouteProps) {
   if (info?.object.type !== "table" || !column) {
     return errorResponse(request, reply, 404, "Not found");
   }
+  // Unlike the lookup above, failures here come from the key the client sent: a bad request.
   let blob: Uint8Array | undefined;
   let label: string;
   try {

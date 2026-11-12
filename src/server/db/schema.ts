@@ -99,13 +99,16 @@ export function foreignKeys(table: string) {
     .all() as { table: string; from: string; to: string }[];
 }
 
+/** Options for counting rows: a cap (see tryCount) and filters the rows must match. */
+export type CountOptions = { limit?: number; filters?: Filters };
+
 /**
  * Row count, or undefined if it fails (e.g. a view referencing a dropped table).
  * With `limit`, counting stops after limit + 1 rows, so a result above `limit`
  * only means "more than that" (cheap enough for many big tables at once).
  * Exported for tests; pages use countRows.
  */
-export function tryCount(table: string, limit?: number, filters?: Filters) {
+export function tryCount(table: string, { limit, filters }: CountOptions = {}) {
   const { where, params } = filterClause(filters);
   const from =
     limit === undefined
@@ -132,8 +135,11 @@ export type RowCount = { count: number | undefined; capped: boolean };
 export const OVERVIEW_COUNT_LIMIT = 10_000;
 
 /** Row count up to `limit` (default COUNT_LIMIT), of rows matching `filters`; see RowCount. */
-export function countRows(table: string, limit = COUNT_LIMIT, filters?: Filters): RowCount {
-  const count = tryCount(table, limit, filters);
+export function countRows(
+  table: string,
+  { limit = COUNT_LIMIT, filters }: CountOptions = {},
+): RowCount {
+  const count = tryCount(table, { limit, filters });
   return count !== undefined && count > limit
     ? { count: limit, capped: true }
     : { count, capped: false };
