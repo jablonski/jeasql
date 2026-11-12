@@ -1,7 +1,7 @@
 // runQuery against a real database (sql.test.ts covers parsing without one).
 import assert from "node:assert/strict";
 import { describe, test } from "node:test";
-import { db, findObject, isPageable, runQuery } from "../src/server/db.ts";
+import { db, findObject, isPageable, parseSql, runQuery } from "../src/server/db.ts";
 import { tempDatabase } from "./helpers.ts";
 
 tempDatabase();
@@ -79,7 +79,7 @@ describe("runQuery paging", () => {
 
   test("leaves EXPLAIN and writes unpaged", () => {
     assert.equal(runQuery("EXPLAIN SELECT 1", { limit: 1, offset: 5 }).paged, false);
-    assert.equal(isPageable("DELETE FROM nums RETURNING n"), false);
+    assert.equal(isPageable(parseSql("DELETE FROM nums RETURNING n")), false);
   });
 
   test("a ? placeholder stays NULL when paged, as it does unpaged", () => {

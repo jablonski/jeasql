@@ -42,7 +42,7 @@ describe("isReadOnly", () => {
     "SELECT 'drop table t'",
     "/* delete */ SELECT 1",
   ]) {
-    test(`allows: ${sql}`, () => assert.equal(isReadOnly(sql), true));
+    test(`allows: ${sql}`, () => assert.equal(isReadOnly(parseSql(sql)), true));
   }
 
   for (const sql of [
@@ -54,7 +54,7 @@ describe("isReadOnly", () => {
     "ATTACH 'x.db' AS x",
     "",
   ]) {
-    test(`rejects: ${sql || "(empty)"}`, () => assert.equal(isReadOnly(sql), false));
+    test(`rejects: ${sql || "(empty)"}`, () => assert.equal(isReadOnly(parseSql(sql)), false));
   }
 });
 

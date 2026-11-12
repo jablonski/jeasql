@@ -186,7 +186,7 @@ export type ParsedSql = {
 
 /**
  * Splits SQL into statements at ";" outside of strings, quoted names and comments,
- * in one pass. Parse once and pass the result on (isReadOnly, isPageable accept it).
+ * in one pass. Parse once and pass the result on (to isReadOnly, isPageable).
  */
 export function parseSql(sql: string): ParsedSql {
   const statements: string[] = [];
@@ -228,23 +228,19 @@ export function parseSql(sql: string): ParsedSql {
   };
 }
 
-const parsed = (sql: string | ParsedSql) => (typeof sql === "string" ? parseSql(sql) : sql);
-
 /**
  * True if a query can be paged inside SQL: read-only (so running it again per
  * page repeats no write) and usable as a subquery (EXPLAIN is not).
  */
-export function isPageable(sql: string | ParsedSql) {
-  const parsedSql = parsed(sql);
-  return isReadOnly(parsedSql) && /^\s*(SELECT|VALUES|WITH)\b/i.test(parsedSql.code);
+export function isPageable(parsed: ParsedSql) {
+  return isReadOnly(parsed) && /^\s*(SELECT|VALUES|WITH)\b/i.test(parsed.code);
 }
 
 /**
  * True if the SQL is a single statement that only reads: it starts with
  * SELECT, VALUES, WITH or EXPLAIN and contains no writing keyword.
  */
-export function isReadOnly(sql: string | ParsedSql) {
-  const { statements, code } = parsed(sql);
+export function isReadOnly({ statements, code }: ParsedSql) {
   // `code` has strings and comments blanked out, so 'DELETE' in a string literal
   // or a comment doesn't count as a write. This errs on the safe side: the
   // function call replace(...) also matches REPLACE, so such a query counts as writing.

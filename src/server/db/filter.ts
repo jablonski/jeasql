@@ -43,7 +43,7 @@ const OPERATORS = ["<=", ">=", "!=", "<>", "=", "<", ">"] as const;
  * - `!text`: does not contain text
  * - anything else: contains text (case-insensitive for ASCII, like LIKE)
  */
-export function filterCondition(
+function filterCondition(
   column: string,
   expression: string,
   param: string,

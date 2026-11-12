@@ -3,7 +3,7 @@ import ErrorMessage from "../components/ErrorMessage.tsx";
 import Layout from "../components/Layout.tsx";
 import Pager from "../components/Pager.tsx";
 import QuerySummary, { elapsed } from "../components/QuerySummary.tsx";
-import { dbPath, runQuery, schemaMap } from "../server/db.ts";
+import { runQuery, schemaMap } from "../server/db.ts";
 import { attempt } from "../server/errors.ts";
 import { PAGE_SIZE, pageOffset, parsePage } from "../server/paging.ts";
 import { formBody } from "../server/request.ts";
@@ -38,7 +38,7 @@ export default function ({ request }: RouteProps) {
   const stats: RowStats = { count: 0, truncated: false };
 
   // Table and column names for code completion in the textarea.
-  const { value: schema } = attempt(() => (dbPath() ? schemaMap() : {}), {});
+  const { value: schema } = attempt(schemaMap, {});
 
   return (
     <Layout title="SQL query" description="Run SQL against the database" route="/query-database">
