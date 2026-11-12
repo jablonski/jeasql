@@ -53,6 +53,9 @@ export const findName = (names: string[], name: unknown) =>
 /** Quotes an identifier (table or column name) for safe use in SQL. */
 export const quote = (name: string) => `"${name.replaceAll('"', '""')}"`;
 
+/** Quotes identifiers and joins them for a column list: ["a", "b"] → `"a", "b"`. */
+export const quoteList = (names: string[]) => names.map(quote).join(", ");
+
 /**
  * Runs arbitrary SQL. For statements that produce rows, returns a lazy
  * cursor over them (rows as arrays, so columns with the same name, like

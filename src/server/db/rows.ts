@@ -7,6 +7,7 @@ import {
   pageParams,
   parseNumber,
   quote,
+  quoteList,
   prepareBig,
   sameSqlName,
 } from "./sql.ts";
@@ -168,7 +169,7 @@ export function updateCell(
   // RETURNING reads the row as stored, by its new key if that changed.
   // Rows as arrays, so a key column can't clash with the value's alias.
   const statement = prepareBig(
-    `UPDATE ${quote(table)} SET ${quote(column)} = ? WHERE ${where} RETURNING ${quote(column)}, ${keyColumns.map(quote).join(", ")}`,
+    `UPDATE ${quote(table)} SET ${quote(column)} = ? WHERE ${where} RETURNING ${quote(column)}, ${quoteList(keyColumns)}`,
   );
   statement.setReturnArrays(true);
   const rows = statement.all(bound, ...values) as unknown as unknown[][];
@@ -242,7 +243,7 @@ export function insertRow(table: string, values: Record<string, string | Uint8Ar
   const cols = info.cols.filter((column) => Object.hasOwn(values, column.name));
   const names = cols.map((column) => column.name);
   const sql = names.length
-    ? `INSERT INTO ${quote(table)} (${names.map(quote).join(", ")}) VALUES (${names.map(() => "?").join(", ")})`
+    ? `INSERT INTO ${quote(table)} (${quoteList(names)}) VALUES (${names.map(() => "?").join(", ")})`
     : `INSERT INTO ${quote(table)} DEFAULT VALUES`;
   const { lastInsertRowid } = prepareBig(sql).run(
     ...cols.map((column) => bindValue(column, values[column.name])),

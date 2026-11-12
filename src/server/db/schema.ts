@@ -1,6 +1,6 @@
 // Tables, views and their structure.
 import { db } from "./connection.ts";
-import { quote, SQL_NUMBER } from "./sql.ts";
+import { quote, quoteList, SQL_NUMBER } from "./sql.ts";
 import { filterClause } from "./filter.ts";
 import type { Filters } from "./filter.ts";
 import { requireText, trimmed } from "../fields.ts";
@@ -188,7 +188,7 @@ export function createTable(table: string, cols: ColumnSpec[]) {
     columnDefinition(composite ? { ...column, pk: false } : column),
   );
   if (composite) {
-    parts.push(`PRIMARY KEY (${keys.map((column) => quote(trimmed(column.name))).join(", ")})`);
+    parts.push(`PRIMARY KEY (${quoteList(keys.map((column) => trimmed(column.name)))})`);
   }
   db().exec(`CREATE TABLE ${quote(name)} (\n  ${parts.join(",\n  ")}\n)`);
   return name;
