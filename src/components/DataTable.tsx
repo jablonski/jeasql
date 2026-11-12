@@ -1,6 +1,6 @@
 import { setImmediate as nextTick } from "node:timers/promises";
 import { keyJson } from "../server/rowKey.ts";
-import { FILTER_PARAM } from "../server/db/filter.ts";
+import { FILTER_PARAM } from "../server/db.ts";
 import type { Filters, Row, RowKey, SortDir } from "../server/db.ts";
 import { url } from "../server/url.ts";
 import Cell from "./Cell.tsx";

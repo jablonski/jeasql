@@ -1,5 +1,5 @@
 // Links between the app's pages.
-import { filterParams } from "./db/filter.ts";
+import { filterParams } from "./db.ts";
 import type { Filters, SortDir } from "./db.ts";
 import { keyJson } from "./rowKey.ts";
 import { url } from "./url.ts";
