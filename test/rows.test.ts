@@ -76,6 +76,11 @@ describe("updateCell", () => {
     assert.equal(updateCell("plain", key, "a", "1.5e-7").value, 1.5e-7);
     assert.equal(updateCell("plain", key, "a", "1e+21").value, 1e21);
   });
+  test("folds only ASCII case, like SQLite: Ä and ä are different columns", () => {
+    db().exec(`CREATE TABLE umlaut ("Ä" TEXT, "ä" TEXT); INSERT INTO umlaut VALUES ('upper', 'lower')`);
+    assert.equal(updateCell("umlaut", { rowid: 1 }, "ä", "changed").column, "ä");
+    assert.deepEqual({ ...db().prepare("SELECT * FROM umlaut").get() }, { Ä: "upper", ä: "changed" });
+  });
   test("matches column names case-insensitively and returns the declared name", () => {
     const stored = updateCell("plain", key, "A", "7");
     assert.equal(stored.column, "a");
@@ -331,6 +336,14 @@ describe("filters", () => {
       parseFilters(["name", "age"], { "f.AGE": ">1", "f.x": "1", "f.name": " ", sort: "a" }),
       { age: ">1" },
     );
+  });
+  test("parseFilters keeps a column named __proto__", () => {
+    const filters = parseFilters(["__proto__"], { "f.__proto__": "x" });
+    assert.ok(Object.hasOwn(filters, "__proto__"));
+    assert.equal(filters["__proto__"], "x");
+  });
+  test("parseFilters tells apart names that differ only in non-ASCII case", () => {
+    assert.deepEqual(Object.keys(parseFilters(["Ä", "ä"], { "f.ä": "1" })), ["ä"]);
   });
 });
 

@@ -1,5 +1,6 @@
 // Column filters for table pages: one expression per column, turned into a WHERE clause.
 import { findName, parseNumber, quote } from "./sql.ts";
+import { dict } from "../dict.ts";
 import type { SQLInputValue } from "node:sqlite";
 
 /** Filter expressions by column name; empty expressions are left out. */
@@ -13,7 +14,8 @@ export const FILTER_PARAM = "f.";
  * names, see findName), in column order.
  */
 export function parseFilters(columnNames: string[], query: Record<string, string>): Filters {
-  const filters: Filters = {};
+  // No prototype: a column named "__proto__" must stay an ordinary entry.
+  const filters = dict<string>();
   for (const [param, value] of Object.entries(query)) {
     if (!param.startsWith(FILTER_PARAM) || !value.trim()) {
       continue;

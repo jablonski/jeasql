@@ -44,6 +44,23 @@ describe("createTable", () => {
       /Invalid column type/,
     );
   });
+  test("accepts SQLite type names but nothing smuggled in with them", () => {
+    createTable("typed", [
+      { name: "a", type: "VARCHAR(255)" },
+      { name: "b", type: "DOUBLE PRECISION" },
+      { name: "c", type: "DECIMAL ( 10 , 2 )" },
+      { name: "d", type: "UNSIGNED BIG INT" },
+    ]);
+    assert.match(sqlOf("typed"), /"c" DECIMAL \( 10 , 2 \)/);
+    for (const type of ["TEXT, sneaky INTEGER", "TEXT(1)(2)", "INT(1, 2, 3)", "(5)", "TEXT("]) {
+      assert.throws(
+        () => createTable("bad", [{ name: "a", type }]),
+        /Invalid column type/,
+        type,
+      );
+    }
+    assert.equal(findObject("bad"), undefined);
+  });
 });
 
 describe("alterTable", () => {

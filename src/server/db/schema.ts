@@ -134,10 +134,24 @@ export function countRows(table: string, limit = COUNT_LIMIT, filters?: Filters)
 export const hasBlobAffinity = (type: string) =>
   (!type.trim() || /BLOB/i.test(type)) && !/INT|CHAR|CLOB|TEXT/i.test(type);
 
-/** Column types may only contain simple characters, e.g. "VARCHAR(255)". */
+/** A signed number inside a type's size, e.g. the 255 of VARCHAR(255). */
+const TYPE_SIZE = String.raw`\s*[+-]?\d+(\.\d+)?\s*`;
+
+/**
+ * SQLite's type-name grammar: one or more words, optionally followed by one size or two
+ * ("VARCHAR(255)", "DOUBLE PRECISION", "DECIMAL(10, 2)"); "" for no type.
+ */
+const TYPE_NAME = new RegExp(
+  String.raw`^([A-Za-z_]\w*(\s+[A-Za-z_]\w*)*(\s*\(${TYPE_SIZE}(,${TYPE_SIZE})?\))?)?$`,
+);
+
+/**
+ * Checks a column type against TYPE_NAME, so it can't carry anything else into the
+ * column definition (e.g. "TEXT, other INTEGER" would add a second column).
+ */
 function checkType(type: string) {
   const value = trimmed(type);
-  if (!/^[A-Za-z0-9_ (),]*$/.test(value)) {
+  if (!TYPE_NAME.test(value)) {
     throw new Error(`Invalid column type: ${value}`);
   }
   return value;

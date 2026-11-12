@@ -33,6 +33,12 @@ describe("runQuery", () => {
     assert.equal(count("atom"), 2);
   });
 
+  test("runs a batch with VACUUM, which fails inside a transaction", () => {
+    runQuery("INSERT INTO atom VALUES (3); VACUUM");
+    assert.equal(count("atom"), 3);
+    assert.equal(db().isTransaction, false);
+  });
+
   test("a batch with CASE … END still runs all or nothing", () => {
     db().exec("CREATE TABLE atomic (a)");
     assert.throws(() =>

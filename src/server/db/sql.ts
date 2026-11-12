@@ -43,8 +43,14 @@ export function parseNumber(value: string): bigint | number | undefined {
   return Number.isFinite(n) ? n : undefined;
 }
 
-/** True if two table or column names are the same: SQLite matches names case-insensitively. */
-export const sameSqlName = (a: string, b: string) => a.toLowerCase() === b.toLowerCase();
+/** Lowercases ASCII letters only, the way SQLite folds names (see sameSqlName). */
+const foldAscii = (name: string) => name.replace(/[A-Z]/g, (c) => c.toLowerCase());
+
+/**
+ * True if two table or column names are the same: SQLite matches names case-insensitively,
+ * but only for ASCII letters, so "Ä" and "ä" are different columns.
+ */
+export const sameSqlName = (a: string, b: string) => foldAscii(a) === foldAscii(b);
 
 /** The entry of `names` matching `name` (see sameSqlName), as declared; undefined if none. */
 export const findName = (names: string[], name: unknown) =>
@@ -110,10 +116,11 @@ function noRows(columns: string[], changes: number) {
 
 /**
  * Runs several statements all or nothing, unless the SQL manages transactions
- * itself (or is already inside one): then it runs as given.
+ * itself, contains a statement that can't run inside one (VACUUM), or is already
+ * inside one: then it runs as given.
  */
 function execAtomic({ sql, code }: ParsedSql) {
-  if (!db().isTransaction && !managesTransactions(code)) {
+  if (!db().isTransaction && !mustRunUnwrapped(code)) {
     db().exec("BEGIN");
     try {
       db().exec(sql);
@@ -129,11 +136,17 @@ function execAtomic({ sql, code }: ParsedSql) {
   db().exec(sql);
 }
 
-/** Statements that control transactions (only at the start: CASE … END is no transaction). */
-const TRANSACTION_CONTROL = /^\s*(BEGIN|COMMIT|END|ROLLBACK|SAVEPOINT|RELEASE)\b/i;
+/**
+ * Statements that control transactions, or fail inside one (VACUUM). Only at the
+ * start of a statement: CASE … END is no transaction.
+ */
+const TRANSACTION_CONTROL = /^\s*(BEGIN|COMMIT|END|ROLLBACK|SAVEPOINT|RELEASE|VACUUM)\b/i;
 
-/** True if any statement of the (blanked-out) SQL begins, ends or nests a transaction. */
-function managesTransactions(code: string) {
+/**
+ * True if any statement of the (blanked-out) SQL begins, ends or nests a transaction,
+ * or can't run inside one, so it must not be wrapped in BEGIN … COMMIT.
+ */
+function mustRunUnwrapped(code: string) {
   return stripTriggers(code)
     .split(";")
     .some((statement) => TRANSACTION_CONTROL.test(statement));
