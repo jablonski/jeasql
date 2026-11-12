@@ -124,8 +124,9 @@ The code is TypeScript: esbuild compiles it for the server and the browser, and 
   - `request.ts` (POST-only routes, error responses, form and upload parsing), `redirect.ts`, `forms.ts` (form fields → data), `errors.ts` (`attempt`, `errorMessage`)
   - `url.ts` (app links with query parameters), `links.ts` (links between pages), `rowKey.ts` (row keys sent to and from the browser), `paging.ts`
   - `files.ts` (SQLite files in the working directory), `guessType.ts` (BLOB download types)
+  - `handlers.ts` (`pickHandler`: dispatches user-chosen `op` fields), `dict.ts` (prototype-free records for user-supplied keys)
   - `fields.ts` (reading and validating form, JSON and query fields), `classes.ts` (`cx` for CSS class names), `memo.ts` (`perRequest`: lookups cached for one request)
-  - `db.ts`: database access, split into `db/connection.ts`, `db/schema.ts`, `db/rows.ts` and `db/sql.ts`. Code outside `db/` imports functions and types from `db.ts` only
+  - `db.ts`: database access, split into `db/connection.ts`, `db/schema.ts`, `db/rows.ts`, `db/filter.ts` (column filters) and `db/sql.ts`. Code outside `db/` imports functions and types from `db.ts` only
 - `src/browser/`: client-side code
   - `scripts/`, bundled by `index.ts`
   - `styles/`, bundled in order by `index.css`
@@ -135,7 +136,7 @@ The code is TypeScript: esbuild compiles it for the server and the browser, and 
 
 ### Conventions
 
-- **Routes:** routes that only handle an action are wrapped in `postOnly` (other methods get 405). Pages that both show a form and handle it (`create-table`, `open-database`, `login`) answer GET and check `isPost` themselves, so they can render the form again with an error.
+- **Routes:** routes that only handle an action are wrapped in `postOnly` (other methods get 405). Pages that both show a form and handle it (`create-table`, `open-database`, `login`, `query-database`) answer GET and handle POST themselves (`handlePost` or `isPost`), so they can render the form again with an error or the result.
 - **Errors:** `errorResponse` answers with JSON `{"error": …}` when the client asked for JSON (scripts using fetch), otherwise with plain text. Pages show errors with `ErrorMessage`; after a redirect, they arrive as signed flash messages.
 - **Names:** submitted form data is `fields` (read with `field`, `trimmed`, `requireText` and `checked` from `fields.ts`); `cols` are column definitions (`Column[]`), `columnNames` their names.
 

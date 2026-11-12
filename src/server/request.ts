@@ -5,9 +5,10 @@ import { dict } from "./dict.ts";
 import { attempt } from "./errors.ts";
 
 // Route convention: a page with a form handles both methods in one route (GET shows
-// it, POST handles it and re-renders it with the error, see handlePost: create-table,
-// open-database, login, query-database). Pure actions without a page of their own
-// are wrapped in postOnly and always redirect or answer JSON.
+// it, POST handles it and re-renders it with the error). create-table and open-database
+// use handlePost; login checks isPost itself, query-database just runs the posted SQL.
+// Pure actions without a page of their own are wrapped in postOnly and always
+// redirect or answer JSON.
 
 /** Wraps a route so it only answers POST; other methods get 405 (see errorResponse). */
 export function postOnly<T>(handler: (this: ThisContext, props: RouteProps) => T) {
