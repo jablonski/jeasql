@@ -29,9 +29,13 @@ describe("perRequest", () => {
     assert.equal(perRequest(undefined, fn), 2);
     const request = {} as FastifyRequest;
     assert.throws(() =>
-      perRequest(request, () => {
-        throw new Error("x");
-      }, "e"),
+      perRequest(
+        request,
+        () => {
+          throw new Error("x");
+        },
+        "e",
+      ),
     );
     assert.equal(
       perRequest(request, () => "ok", "e"),

@@ -13,7 +13,10 @@ const CREATE_TRIGGER_SOURCE = String.raw`\bCREATE\s+(TEMP\s+|TEMPORARY\s+)?TRIGG
 const CREATE_TRIGGER = new RegExp(CREATE_TRIGGER_SOURCE, "i");
 
 /** A whole trigger: its body ends with "; END" (a CASE … END never directly follows a ";"). */
-const TRIGGER_BODY = new RegExp(String.raw`${CREATE_TRIGGER_SOURCE}[\s\S]*?\bBEGIN\b[\s\S]*?;\s*END\b`, "gi");
+const TRIGGER_BODY = new RegExp(
+  String.raw`${CREATE_TRIGGER_SOURCE}[\s\S]*?\bBEGIN\b[\s\S]*?;\s*END\b`,
+  "gi",
+);
 
 /**
  * Numeric literals as SQL writes them (42, -1.5, .5, 1., 1e5, +3, 0x1F), e.g. for DEFAULT.

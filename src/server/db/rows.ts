@@ -17,14 +17,7 @@ import {
   tableColumns,
 } from "./schema.ts";
 import type { Row } from "./sql.ts";
-import {
-  findName,
-  parseNumber,
-  prepareBig,
-  quote,
-  quoteList,
-  sameSqlName,
-} from "./sql.ts";
+import { findName, parseNumber, prepareBig, quote, quoteList, sameSqlName } from "./sql.ts";
 
 /** A value to store in a cell: typed text, an uploaded file, or NULL. */
 export type CellInput = string | Uint8Array | null;
@@ -215,12 +208,7 @@ function toRowKey(keyColumns: string[], values: unknown[]): RowKey {
  * PRIMARY KEY, which is the rowid).
  * `key`: column/value pairs identifying the row
  */
-export function updateCell(
-  table: string,
-  key: RowKey,
-  name: string,
-  value: CellInput,
-) {
+export function updateCell(table: string, key: RowKey, name: string, value: CellInput) {
   const { cols, keyColumns, where, values } = locateRow(table, key);
   const columnDef = requireColumn(cols, name);
   const column = columnDef.name;
