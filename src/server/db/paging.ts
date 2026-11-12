@@ -2,7 +2,7 @@
 import type { RowCount } from "./schema.ts";
 
 /** Rows per page, for tables and query results. */
-export const PAGE_SIZE = 500;
+export const PAGE_SIZE = 100;
 
 /** Highest page whose offset is still a safe integer (larger ones fail to bind as LIMIT/OFFSET). */
 const MAX_PAGE = Math.floor(Number.MAX_SAFE_INTEGER / PAGE_SIZE);
