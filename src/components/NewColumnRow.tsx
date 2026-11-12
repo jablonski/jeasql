@@ -1,3 +1,4 @@
+import { checked } from "../server/fields.ts";
 import { columnField } from "../server/forms.ts";
 import type { ColumnField } from "../server/forms.ts";
 import TypeSelect from "./TypeSelect.tsx";
@@ -33,7 +34,7 @@ export default function NewColumnRow({
           <input
             type="checkbox"
             name={columnField(flag, i)}
-            checked={fields[columnField(flag, i)] === "on" || (fresh && flag === "pk" && i === 0)}
+            checked={checked(fields, columnField(flag, i)) || (fresh && flag === "pk" && i === 0)}
           />
         </td>
       ))}
