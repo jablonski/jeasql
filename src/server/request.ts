@@ -1,9 +1,10 @@
 import type { FastifyReply, FastifyRequest } from "fastify";
 import type { RouteProps, ThisContext } from "../types.d.ts";
 import { dict } from "./dict.ts";
+import { errorMessage } from "./errors.ts";
 
 // Route convention: a page with a form handles both methods in one route (GET shows
-// it, POST handles it and re-renders it with the error, see isPost: create-table,
+// it, POST handles it and re-renders it with the error, see handlePost: create-table,
 // open-database, login, query-database). Pure actions without a page of their own
 // are wrapped in postOnly and always redirect or answer JSON.
 
@@ -47,6 +48,25 @@ export function jsonError(reply: FastifyReply, status: number, error: string) {
 /** True for a form submission. Pages that both show and handle a form check this. */
 export function isPost(request: FastifyRequest) {
   return request.method === "POST";
+}
+
+/**
+ * Handles a form page's submission (see the route convention above): on POST, runs
+ * `action`, which answers with a redirect. Returns that `response`, or the `error`
+ * message if `action` throws, for the page to show next to its form. Does nothing on GET.
+ */
+export function handlePost<T>(
+  request: FastifyRequest,
+  action: () => T,
+): { response?: T; error: string } {
+  if (!isPost(request)) {
+    return { error: "" };
+  }
+  try {
+    return { response: action(), error: "" };
+  } catch (e) {
+    return { error: errorMessage(e) };
+  }
 }
 
 /**

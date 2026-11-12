@@ -2,10 +2,9 @@ import ErrorMessage from "../components/ErrorMessage.tsx";
 import Layout from "../components/Layout.tsx";
 import NewColumnRow from "../components/NewColumnRow.tsx";
 import { createTable } from "../server/db.ts";
-import { errorMessage } from "../server/errors.ts";
 import { columnRows, columnsFromForm } from "../server/forms.ts";
 import { redirectTable } from "../server/redirect.ts";
-import { formBody, isPost } from "../server/request.ts";
+import { formBody, handlePost, isPost } from "../server/request.ts";
 import { field } from "../server/fields.ts";
 import { url } from "../server/url.ts";
 import type { RouteProps } from "../types.d.ts";
@@ -16,17 +15,12 @@ import type { RouteProps } from "../types.d.ts";
  */
 export default function ({ request, reply }: RouteProps) {
   const fields = formBody(request);
-  let error = "";
-
-  if (isPost(request)) {
-    try {
-      const table = createTable(field(fields, "table"), columnsFromForm(fields));
-      return redirectTable(reply, table, {
-        notice: "Table created.",
-      });
-    } catch (e) {
-      error = errorMessage(e);
-    }
+  const { response, error } = handlePost(request, () => {
+    const table = createTable(field(fields, "table"), columnsFromForm(fields));
+    return redirectTable(reply, table, { notice: "Table created." });
+  });
+  if (response) {
+    return response;
   }
 
   const rows = Math.max(2, columnRows(fields).length);

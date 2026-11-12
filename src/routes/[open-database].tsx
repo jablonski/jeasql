@@ -3,10 +3,9 @@ import ErrorMessage from "../components/ErrorMessage.tsx";
 import Hero from "../components/Hero.tsx";
 import Layout from "../components/Layout.tsx";
 import { dbPath, openDatabase } from "../server/db.ts";
-import { errorMessage } from "../server/errors.ts";
 import { findDatabaseFiles } from "../server/files.ts";
 import { redirectHome } from "../server/redirect.ts";
-import { formBody, isPost } from "../server/request.ts";
+import { formBody, handlePost } from "../server/request.ts";
 import { checked, field } from "../server/fields.ts";
 import { url } from "../server/url.ts";
 import type { RouteProps } from "../types.d.ts";
@@ -14,15 +13,12 @@ import type { RouteProps } from "../types.d.ts";
 /** GET shows the form, POST switches to another database file. */
 export default function ({ request, reply }: RouteProps) {
   const fields = formBody(request);
-  let error = "";
-
-  if (isPost(request)) {
-    try {
-      const file = openDatabase(field(fields, "path"), checked(fields, "create"));
-      return redirectHome(reply, { notice: `Opened ${file}` });
-    } catch (e) {
-      error = errorMessage(e);
-    }
+  const { response, error } = handlePost(request, () => {
+    const file = openDatabase(field(fields, "path"), checked(fields, "create"));
+    return redirectHome(reply, { notice: `Opened ${file}` });
+  });
+  if (response) {
+    return response;
   }
 
   const found = findDatabaseFiles();
