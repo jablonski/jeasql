@@ -1,8 +1,8 @@
 import { html } from "jsx-async-runtime";
 import { dbPath, inTransaction } from "../server/db.ts";
-import { readFlash } from "../server/flash.ts";
-import { queryParams } from "../server/request.ts";
-import { url } from "../server/url.ts";
+import { readFlash } from "../server/http/flash.ts";
+import { queryParams } from "../server/http/request.ts";
+import { url } from "../server/http/url.ts";
 import type { ThisContext } from "../types.d.ts";
 import ConfirmDialog from "./ConfirmDialog.tsx";
 import Header from "./Header.tsx";

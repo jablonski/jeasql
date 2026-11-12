@@ -1,6 +1,6 @@
 import assert from "node:assert/strict";
 import { describe, test } from "node:test";
-import { keyJson, keyLabel, keyValue, parseKey } from "../src/server/rowKey.ts";
+import { keyJson, keyLabel, keyValue, parseKey } from "../src/server/db/rowKey.ts";
 
 describe("parseKey", () => {
   test("accepts objects and their JSON text; missing means {}", () => {

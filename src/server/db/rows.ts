@@ -1,5 +1,11 @@
 // Reading and changing single rows and cells.
+import type { SQLInputValue } from "node:sqlite";
 import { db, holdCursor } from "./connection.ts";
+import type { Filters } from "./filter.ts";
+import { filterClause } from "./filter.ts";
+import type { RowKey } from "./rowKey.ts";
+import { keyValue } from "./rowKey.ts";
+import type { Column, SchemaObject } from "./schema.ts";
 import {
   assertTable,
   findObject,
@@ -8,25 +14,17 @@ import {
   isGenerated,
   tableColumns,
 } from "./schema.ts";
+import type { Row } from "./sql.ts";
 import {
   findName,
   PAGE_CLAUSE,
   pageParams,
   parseNumber,
+  prepareBig,
   quote,
   quoteList,
-  prepareBig,
   sameSqlName,
 } from "./sql.ts";
-import { filterClause } from "./filter.ts";
-import type { Filters } from "./filter.ts";
-import { keyValue } from "../rowKey.ts";
-import type { RowKey } from "../rowKey.ts";
-import type { Row } from "./sql.ts";
-import type { SQLInputValue } from "node:sqlite";
-import type { Column, SchemaObject } from "./schema.ts";
-
-export type { RowKey };
 
 /** Sort direction of a table page. */
 export type SortDir = "asc" | "desc";

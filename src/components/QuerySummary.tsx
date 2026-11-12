@@ -1,4 +1,4 @@
-import { pageOffset } from "../server/paging.ts";
+import { pageOffset } from "../server/db.ts";
 import type { RowStats } from "./DataTable.tsx";
 
 /** Milliseconds since `started` (a performance.now() value), as text. */

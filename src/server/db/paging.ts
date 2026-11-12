@@ -1,5 +1,5 @@
 // Paging of tables and query results: page size, page numbers and row counts.
-import type { RowCount } from "./db.ts";
+import type { RowCount } from "./schema.ts";
 
 /** Rows per page, for tables and query results. */
 export const PAGE_SIZE = 500;

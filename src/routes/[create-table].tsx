@@ -2,16 +2,16 @@ import ErrorMessage from "../components/ErrorMessage.tsx";
 import Layout from "../components/Layout.tsx";
 import NewColumnRow from "../components/NewColumnRow.tsx";
 import { createTable } from "../server/db.ts";
-import { field } from "../server/fields.ts";
-import { columnRows, columnsFromForm } from "../server/forms.ts";
-import { redirectTable } from "../server/redirect.ts";
-import { formBody, handlePost, isPost } from "../server/request.ts";
-import { url } from "../server/url.ts";
+import { field } from "../server/lib/fields.ts";
+import { columnRows, columnsFromForm } from "../server/http/forms.ts";
+import { redirectTable } from "../server/http/redirect.ts";
+import { formBody, handlePost, isPost } from "../server/http/request.ts";
+import { url } from "../server/http/url.ts";
 import type { RouteProps } from "../types.d.ts";
 
 /**
  * GET shows the form, POST creates the table.
- * Column fields are named by columnField (server/forms.ts).
+ * Column fields are named by columnField (server/http/forms.ts).
  */
 export default function ({ request, reply }: RouteProps) {
   const fields = formBody(request);

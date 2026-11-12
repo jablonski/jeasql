@@ -1,7 +1,6 @@
 // Links between the app's pages.
-import { filterParams } from "./db.ts";
-import type { Filters, SortDir } from "./db.ts";
-import { keyJson } from "./rowKey.ts";
+import type { Filters, SortDir } from "../db.ts";
+import { filterParams, keyJson } from "../db.ts";
 import { url } from "./url.ts";
 
 /** Link that downloads one BLOB cell. */

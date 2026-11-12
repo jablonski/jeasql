@@ -1,5 +1,5 @@
-import { createHmac, randomBytes, timingSafeEqual } from "node:crypto";
 import type { FastifyRequest } from "fastify";
+import { createHmac, randomBytes, timingSafeEqual } from "node:crypto";
 
 /** Name of the session cookie. */
 export const COOKIE = "session";

@@ -1,7 +1,7 @@
 // Flash messages: a notice or error shown once after a redirect, passed in the URL.
 // The params notice, error and sig are removed from the URL again by browser/scripts/flash.ts.
-import { safeEqual, sign } from "./auth.ts";
-import { field } from "./fields.ts";
+import { field } from "../lib/fields.ts";
+import { safeEqual, sign } from "../security/auth.ts";
 
 /**
  * Flash message params with a signature, so only the app itself can show

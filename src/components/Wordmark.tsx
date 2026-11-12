@@ -1,4 +1,4 @@
-import { url } from "../server/url.ts";
+import { url } from "../server/http/url.ts";
 
 /** The logo with the "JeasQL" name; `logoClass` sizes the logo. */
 export default function Wordmark({ logoClass }: { logoClass: string }) {

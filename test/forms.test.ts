@@ -1,6 +1,6 @@
 import assert from "node:assert/strict";
 import { describe, test } from "node:test";
-import { columnsFromForm, insertValues } from "../src/server/forms.ts";
+import { columnsFromForm, insertValues } from "../src/server/http/forms.ts";
 
 describe("insertValues", () => {
   test("handles column names that clash with Object.prototype", () => {

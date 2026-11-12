@@ -1,6 +1,6 @@
 import Hero from "../components/Hero.tsx";
 import Layout from "../components/Layout.tsx";
-import { url } from "../server/url.ts";
+import { url } from "../server/http/url.ts";
 import type { RouteProps } from "../types.d.ts";
 
 /** Shown for unknown routes. */

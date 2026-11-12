@@ -1,7 +1,7 @@
 import { basename, dirname } from "node:path";
-import { cx } from "../server/classes.ts";
-import { fileInfo } from "../server/files.ts";
-import { url } from "../server/url.ts";
+import { cx } from "../server/lib/classes.ts";
+import { fileInfo } from "../server/files/files.ts";
+import { url } from "../server/http/url.ts";
 import HiddenFields from "./HiddenFields.tsx";
 
 /** Clickable cards, each posting its path to /open-database. */

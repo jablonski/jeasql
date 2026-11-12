@@ -1,11 +1,11 @@
 // Tables, views and their structure.
+import { dict } from "../lib/dict.ts";
+import { requireText, trimmed } from "../lib/fields.ts";
+import { pickHandler } from "../lib/handlers.ts";
 import { db } from "./connection.ts";
-import { quote, quoteList, SQL_NUMBER } from "./sql.ts";
-import { filterClause } from "./filter.ts";
 import type { Filters } from "./filter.ts";
-import { requireText, trimmed } from "../fields.ts";
-import { dict } from "../dict.ts";
-import { pickHandler } from "../handlers.ts";
+import { filterClause } from "./filter.ts";
+import { quote, quoteList, SQL_NUMBER } from "./sql.ts";
 
 /** A table or view. */
 export type SchemaObject = { name: string; type: string; sql: string };

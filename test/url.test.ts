@@ -1,6 +1,6 @@
 import assert from "node:assert/strict";
 import { describe, test } from "node:test";
-import { url } from "../src/server/url.ts";
+import { url } from "../src/server/http/url.ts";
 
 describe("url", () => {
   test("builds paths with encoded params", () => {

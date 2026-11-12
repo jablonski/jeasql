@@ -1,6 +1,6 @@
 // Turns submitted form fields into data for the db functions.
-import { checked, trimmed } from "./fields.ts";
-import { dict } from "./dict.ts";
+import { dict } from "../lib/dict.ts";
+import { checked, trimmed } from "../lib/fields.ts";
 
 /**
  * Field names of the insert form (components/AddRow.tsx), one set per column.

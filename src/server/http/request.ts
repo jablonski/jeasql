@@ -1,8 +1,7 @@
 // Reading requests (query, form, JSON, multipart) and answering errors.
 import type { FastifyReply, FastifyRequest } from "fastify";
-import type { RouteProps, ThisContext } from "../types.d.ts";
-import { dict } from "./dict.ts";
-import { attempt } from "./errors.ts";
+import { dict } from "../lib/dict.ts";
+import { attempt } from "../lib/errors.ts";
 
 // Route convention: a page with a form handles both methods in one route (GET shows
 // it, POST handles it and re-renders it with the error). create-table and open-database
@@ -10,12 +9,19 @@ import { attempt } from "./errors.ts";
 // Pure actions without a page of their own are wrapped in postOnly and always
 // redirect or answer JSON.
 
-/** Wraps a route so it only answers POST; other methods get 405 (see errorResponse). */
-export function postOnly<T>(handler: (this: ThisContext, props: RouteProps) => T) {
-  // `this` is the Jeasx request context, passed on to the handler.
-  return function (this: ThisContext, props: RouteProps) {
+/**
+ * Wraps a route so it only answers POST; other methods get 405 (see errorResponse).
+ * Generic over the route's props and `this` (the request context), which are passed on
+ * unchanged; only `request` and `reply` are read.
+ */
+export function postOnly<
+  Props extends { request: FastifyRequest; reply: FastifyReply },
+  Context,
+  Result,
+>(handler: (this: Context, props: Props) => Result) {
+  return function (this: Context, props: Props) {
     if (!isPost(props.request)) {
-      return errorResponse(props, 405, "Method not allowed");
+      return errorResponse(props.request, props.reply, 405, "Method not allowed");
     }
     return handler.call(this, props);
   };
@@ -25,7 +31,12 @@ export function postOnly<T>(handler: (this: ThisContext, props: RouteProps) => T
  * An error response: JSON {"error": …} for scripts that asked for JSON (see wantsJson),
  * plain text otherwise.
  */
-export function errorResponse({ request, reply }: RouteProps, status: number, error: string) {
+export function errorResponse(
+  request: FastifyRequest,
+  reply: FastifyReply,
+  status: number,
+  error: string,
+) {
   if (wantsJson(request)) {
     return jsonError(reply, status, error);
   }

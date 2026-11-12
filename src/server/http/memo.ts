@@ -1,8 +1,8 @@
 // Per-request memoization, for lookups several components of one page repeat.
-import { listObjects } from "./db.ts";
-import type { SchemaObject } from "./db.ts";
-import { attempt } from "./errors.ts";
-import type { ThisContext } from "../types.d.ts";
+import type { FastifyRequest } from "fastify";
+import type { SchemaObject } from "../db.ts";
+import { listObjects } from "../db.ts";
+import { attempt } from "../lib/errors.ts";
 
 const caches = new WeakMap<object, Map<string, unknown>>();
 
@@ -12,8 +12,7 @@ const caches = new WeakMap<object, Map<string, unknown>>();
  * request (e.g. a component rendered on its own by jsxToString) `fn` just runs.
  * Only for reads whose result can't change during the request's rendering.
  */
-export function perRequest<T>(context: ThisContext | undefined, key: string, fn: () => T): T {
-  const request = context?.request;
+export function perRequest<T>(request: FastifyRequest | undefined, key: string, fn: () => T): T {
   if (!request) {
     return fn();
   }
@@ -31,5 +30,5 @@ export function perRequest<T>(context: ThisContext | undefined, key: string, fn:
  * listObjects, queried once per request (the overview and the sidebar both list them).
  * Never throws: on failure the value is [] and `error` says why (see attempt).
  */
-export const memoListObjects = (context: ThisContext | undefined) =>
-  attempt<SchemaObject[]>(() => perRequest(context, "listObjects", listObjects), []);
+export const memoListObjects = (request: FastifyRequest | undefined) =>
+  attempt<SchemaObject[]>(() => perRequest(request, "listObjects", listObjects), []);

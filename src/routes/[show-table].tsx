@@ -8,21 +8,25 @@ import Relations from "../components/Relations.tsx";
 import Structure from "../components/Structure.tsx";
 import ErrorMessage from "../components/ErrorMessage.tsx";
 import HiddenFields from "../components/HiddenFields.tsx";
-import { attempt } from "../server/errors.ts";
+import { attempt } from "../server/lib/errors.ts";
 import {
+  countLabel,
   countRows,
   describeTable,
   findColumn,
   findObject,
+  PAGE_SIZE,
+  pageCount,
+  pageOffset,
   parseFilters,
+  parsePage,
   quote,
   readTablePage,
 } from "../server/db.ts";
-import { field } from "../server/fields.ts";
-import { tableUrl } from "../server/links.ts";
-import { countLabel, PAGE_SIZE, pageCount, pageOffset, parsePage } from "../server/paging.ts";
-import { queryParams } from "../server/request.ts";
-import { url } from "../server/url.ts";
+import { field } from "../server/lib/fields.ts";
+import { tableUrl } from "../server/http/links.ts";
+import { queryParams } from "../server/http/request.ts";
+import { url } from "../server/http/url.ts";
 import type { Filters, SortDir } from "../server/db.ts";
 import type { RowStats } from "../components/DataTable.tsx";
 import type { RouteProps } from "../types.d.ts";

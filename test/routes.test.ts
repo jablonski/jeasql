@@ -7,8 +7,8 @@ import { tempDatabase } from "./helpers.ts";
 // auth.ts reads the credentials when it is loaded, so set them before importing it.
 process.env.AUTH_USERNAME = "admin";
 process.env.AUTH_PASSWORD = "secret";
-const { COOKIE, sessionToken } = await import("../src/server/auth.ts");
-const { readFlash } = await import("../src/server/flash.ts");
+const { COOKIE, sessionToken } = await import("../src/server/security/auth.ts");
+const { readFlash } = await import("../src/server/http/flash.ts");
 const guard = (await import("../src/routes/[...guard].ts")).default;
 const alterTable = (await import("../src/routes/[alter-table].ts")).default;
 const updateRow = (await import("../src/routes/[update-row].ts")).default;

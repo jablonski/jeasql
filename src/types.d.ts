@@ -22,11 +22,11 @@ declare global {
   var $dbPath: string | undefined;
   /** Open cursors per connection (server/db/connection.ts). */
   var $dbHolds: Map<DatabaseSync, number> | undefined;
-  /** Random session signing key when AUTH_SECRET is not set (server/auth.ts). */
+  /** Random session signing key when AUTH_SECRET is not set (server/security/auth.ts). */
   var $authSecret: Buffer | undefined;
-  /** Logged-out session ids → their expiry in ms (server/auth.ts). */
+  /** Logged-out session ids → their expiry in ms (server/security/auth.ts). */
   var $authRevoked: Map<string, number> | undefined;
-  /** Failed logins per client IP (server/auth.ts). */
+  /** Failed logins per client IP (server/security/auth.ts). */
   var $authFailures: Map<string, { count: number; since: number }> | undefined;
   /** Set once the missing-TRUST_PROXY warning was logged ([...guard].ts). */
   var $proxyWarned: boolean | undefined;

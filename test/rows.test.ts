@@ -16,7 +16,7 @@ import {
   countRows,
   parseFilters,
 } from "../src/server/db.ts";
-import { keyJson } from "../src/server/rowKey.ts";
+import { keyJson } from "../src/server/db/rowKey.ts";
 import { tempDatabase } from "./helpers.ts";
 
 tempDatabase();

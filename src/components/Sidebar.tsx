@@ -1,7 +1,7 @@
-import { cx } from "../server/classes.ts";
-import { tableUrl } from "../server/links.ts";
-import { memoListObjects } from "../server/memo.ts";
-import { url } from "../server/url.ts";
+import { cx } from "../server/lib/classes.ts";
+import { tableUrl } from "../server/http/links.ts";
+import { memoListObjects } from "../server/http/memo.ts";
+import { url } from "../server/http/url.ts";
 import type { ThisContext } from "../types.d.ts";
 import ErrorMessage from "./ErrorMessage.tsx";
 
@@ -19,7 +19,7 @@ export default function Sidebar(
   },
 ) {
   // Without an open database there is nothing to list, and no error to show.
-  const { value: objects, error } = file ? memoListObjects(this) : { value: [], error: "" };
+  const { value: objects, error } = file ? memoListObjects(this.request) : { value: [], error: "" };
 
   /** A menu link; disabled while no database is open. */
   const link = (path: string, label: string) => (

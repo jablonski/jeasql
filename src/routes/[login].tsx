@@ -12,11 +12,11 @@ import {
   clearFailedLogins,
   recordFailedLogin,
   sessionToken,
-} from "../server/auth.ts";
-import { field } from "../server/fields.ts";
-import { safeNext } from "../server/redirect.ts";
-import { formBody, isPost, queryParams } from "../server/request.ts";
-import { url } from "../server/url.ts";
+} from "../server/security/auth.ts";
+import { field } from "../server/lib/fields.ts";
+import { safeNext } from "../server/http/redirect.ts";
+import { formBody, isPost, queryParams } from "../server/http/request.ts";
+import { url } from "../server/http/url.ts";
 import type { RouteProps } from "../types.d.ts";
 
 /** GET shows the login form, POST checks the credentials and sets the session cookie. */

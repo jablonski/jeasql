@@ -1,10 +1,10 @@
 // Redirects after a form submission, with flash messages, and safe redirect targets.
 import type { FastifyReply } from "fastify";
-import { findObject, sameSqlName } from "./db.ts";
-import { attempt, errorMessage } from "./errors.ts";
+import { findObject, sameSqlName } from "../db.ts";
+import { attempt, errorMessage } from "../lib/errors.ts";
+import { signFlash } from "./flash.ts";
 import { tableUrl } from "./links.ts";
 import { url } from "./url.ts";
-import { signFlash } from "./flash.ts";
 
 /** A flash message shown once on the page redirected to. */
 type FlashMessage = { notice?: string; error?: string };

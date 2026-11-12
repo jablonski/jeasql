@@ -1,6 +1,6 @@
 import { closeDatabase } from "../server/db.ts";
-import { redirectHome, redirectOnError } from "../server/redirect.ts";
-import { postOnly } from "../server/request.ts";
+import { redirectHome, redirectOnError } from "../server/http/redirect.ts";
+import { postOnly } from "../server/http/request.ts";
 
 /** POST /close-database – closes the open database connection. */
 export default postOnly(function ({ reply }) {

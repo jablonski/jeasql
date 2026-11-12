@@ -1,5 +1,5 @@
 import { foreignKeys, indexes } from "../server/db.ts";
-import { tableUrl } from "../server/links.ts";
+import { tableUrl } from "../server/http/links.ts";
 
 /** Foreign keys and indexes of a table. */
 export default function Relations({ name }: { name: string }) {

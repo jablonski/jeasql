@@ -1,6 +1,6 @@
-import { checked } from "../server/fields.ts";
-import { columnField } from "../server/forms.ts";
-import type { ColumnField } from "../server/forms.ts";
+import { checked } from "../server/lib/fields.ts";
+import { columnField } from "../server/http/forms.ts";
+import type { ColumnField } from "../server/http/forms.ts";
 import TypeSelect from "./TypeSelect.tsx";
 
 /**

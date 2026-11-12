@@ -2,8 +2,8 @@ import assert from "node:assert/strict";
 import { describe, test } from "node:test";
 import {
   alterTable,
-  tableColumns,
   COUNT_LIMIT,
+  countLabel,
   countRows,
   createTable,
   db,
@@ -11,9 +11,9 @@ import {
   hasBlobAffinity,
   listObjects,
   schemaMap,
+  tableColumns,
   tryCount,
 } from "../src/server/db.ts";
-import { countLabel } from "../src/server/paging.ts";
 import { tempDatabase } from "./helpers.ts";
 
 tempDatabase();

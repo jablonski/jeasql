@@ -119,14 +119,12 @@ The code is TypeScript: esbuild compiles it for the server and the browser, and 
   - `[...guard].ts`: runs before every route; checks login and CSRF, and redirects to the open page while no database is open
   - `[health].json`: health check at `/health`, used by the Dockerfile
 - `src/components/`: JSX building blocks, e.g. `Layout` (with `Header` and `Sidebar`), `Hero` (centred card of the open, login and 404 pages), `Icon`, `DataTable`, `Cell`, `Pager`, and the sections of the table page (`Structure`, `ColumnList`, `Relations`, `AddRow`)
-- `src/server/`: server-only code
-  - `auth.ts` (login, sessions, signed messages), `csrf.ts` (cross-site request check), `flash.ts` (signed one-time notices after redirects)
-  - `request.ts` (POST-only routes, error responses, form and upload parsing), `redirect.ts`, `forms.ts` (form fields → data), `errors.ts` (`attempt`, `errorMessage`)
-  - `url.ts` (app links with query parameters), `links.ts` (links between pages), `rowKey.ts` (row keys sent to and from the browser), `paging.ts`
-  - `files.ts` (SQLite files in the working directory), `guessType.ts` (BLOB download types)
-  - `handlers.ts` (`pickHandler`: dispatches user-chosen `op` fields), `dict.ts` (prototype-free records for user-supplied keys)
-  - `fields.ts` (reading and validating form, JSON and query fields), `classes.ts` (`cx` for CSS class names), `memo.ts` (`perRequest`: lookups cached for one request)
-  - `db.ts`: database access, split into `db/connection.ts`, `db/schema.ts`, `db/rows.ts`, `db/filter.ts` (column filters) and `db/sql.ts`. Code outside `db/` imports functions and types from `db.ts` only
+- `src/server/`: server-only code, one folder per concern
+  - `db.ts`: database access, split into `db/connection.ts`, `db/schema.ts`, `db/rows.ts`, `db/filter.ts` (column filters), `db/sql.ts`, `db/paging.ts` (page size, page numbers and row counts) and `db/rowKey.ts` (row keys sent to and from the browser). Code outside `db/` imports functions and types from `db.ts` only
+  - `http/`: `request.ts` (POST-only routes, error responses, form and upload parsing), `forms.ts` (field names of the insert and create-table forms, submitted fields → data), `redirect.ts`, `flash.ts` (signed one-time notices after redirects), `url.ts` (app links with query parameters), `links.ts` (links between pages), `memo.ts` (`perRequest`: lookups cached for one request)
+  - `security/`: `auth.ts` (login, sessions, signed messages), `csrf.ts` (cross-site request check)
+  - `files/`: `files.ts` (SQLite files in the working directory), `guessType.ts` (BLOB download types)
+  - `lib/`: small generic helpers without app imports: `dict.ts` (prototype-free records for user-supplied keys), `errors.ts` (`attempt`, `errorMessage`), `classes.ts` (`cx` for CSS class names), `fields.ts` (reading and validating form, JSON and query fields), `handlers.ts` (`pickHandler`: dispatches user-chosen `op` fields)
 - `src/browser/`: client-side code
   - `scripts/`, bundled by `index.ts`
   - `styles/`, bundled in order by `index.css`
@@ -138,7 +136,7 @@ The code is TypeScript: esbuild compiles it for the server and the browser, and 
 
 - **Routes:** routes that only handle an action are wrapped in `postOnly` (other methods get 405). Pages that both show a form and handle it (`create-table`, `open-database`, `login`, `query-database`) answer GET and handle POST themselves (`handlePost` or `isPost`), so they can render the form again with an error or the result.
 - **Errors:** `errorResponse` answers with JSON `{"error": …}` when the client asked for JSON (scripts using fetch), otherwise with plain text. Pages show errors with `ErrorMessage`; after a redirect, they arrive as signed flash messages.
-- **Names:** submitted form data is `fields` (read with `field`, `trimmed`, `requireText` and `checked` from `fields.ts`); `cols` are column definitions (`Column[]`), `columnNames` their names.
+- **Names:** submitted form data is `fields` (read with `field`, `trimmed`, `requireText` and `checked` from `lib/fields.ts`); `cols` are column definitions (`Column[]`), `columnNames` their names.
 
 ### File naming rules
 

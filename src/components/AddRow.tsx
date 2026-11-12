@@ -1,6 +1,6 @@
 import { isGenerated } from "../server/db.ts";
-import { insertField } from "../server/forms.ts";
-import { url } from "../server/url.ts";
+import { insertField } from "../server/http/forms.ts";
+import { url } from "../server/http/url.ts";
 import type { Column } from "../server/db.ts";
 import HiddenFields from "./HiddenFields.tsx";
 

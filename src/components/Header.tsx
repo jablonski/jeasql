@@ -1,6 +1,6 @@
 import { basename } from "node:path";
-import { cx } from "../server/classes.ts";
-import { url } from "../server/url.ts";
+import { cx } from "../server/lib/classes.ts";
+import { url } from "../server/http/url.ts";
 import Icon from "./Icon.tsx";
 import Wordmark from "./Wordmark.tsx";
 

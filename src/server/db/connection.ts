@@ -2,7 +2,7 @@
 import { existsSync } from "node:fs";
 import { resolve } from "node:path";
 import { DatabaseSync } from "node:sqlite";
-import { requireText } from "../fields.ts";
+import { requireText } from "../lib/fields.ts";
 
 /** SQLite's name for a fresh in-memory database. */
 const MEMORY = ":memory:";

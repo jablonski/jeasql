@@ -1,5 +1,5 @@
-import { cx } from "../server/classes.ts";
-import { blobUrl } from "../server/links.ts";
+import { cx } from "../server/lib/classes.ts";
+import { blobUrl } from "../server/http/links.ts";
 
 /** Longer cell texts are cut off; the full text (up to MAX_TITLE_TEXT) goes into the tooltip. */
 const MAX_CELL_TEXT = 80;

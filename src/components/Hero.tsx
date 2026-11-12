@@ -1,4 +1,4 @@
-import { cx } from "../server/classes.ts";
+import { cx } from "../server/lib/classes.ts";
 import Icon from "./Icon.tsx";
 import type { IconName } from "./Icon.tsx";
 

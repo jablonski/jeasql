@@ -1,6 +1,6 @@
 import assert from "node:assert/strict";
 import { describe, test } from "node:test";
-import { queryParams } from "../src/server/request.ts";
+import { queryParams } from "../src/server/http/request.ts";
 
 // Plain JavaScript without types; loaded by path so TypeScript doesn't check it.
 const configPath: string = "../jeasx.config.js";

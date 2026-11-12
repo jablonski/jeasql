@@ -1,6 +1,6 @@
 import assert from "node:assert/strict";
 import { test } from "node:test";
-import { guessType } from "../src/server/guessType.ts";
+import { guessType } from "../src/server/files/guessType.ts";
 
 const bytes = (input: string | readonly number[]) =>
   typeof input === "string" ? new TextEncoder().encode(input) : new Uint8Array(input);

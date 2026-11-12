@@ -4,12 +4,11 @@ import { mkdtempSync, rmSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { after, describe, test } from "node:test";
-import { closeDatabase, db, dbPath, openDatabase } from "../src/server/db.ts";
-import { parsePage, PAGE_SIZE } from "../src/server/paging.ts";
+import { closeDatabase, db, dbPath, openDatabase, PAGE_SIZE, parsePage } from "../src/server/db.ts";
 
 process.env.AUTH_USERNAME = "admin";
 process.env.AUTH_PASSWORD = "secret";
-const { COOKIE, sessionToken } = await import("../src/server/auth.ts");
+const { COOKIE, sessionToken } = await import("../src/server/security/auth.ts");
 const guard = (await import("../src/routes/[...guard].ts")).default;
 
 const dir = mkdtempSync(join(tmpdir(), "jeasql-test-"));

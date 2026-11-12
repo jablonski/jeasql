@@ -1,5 +1,5 @@
-import { cx } from "../server/classes.ts";
-import { url } from "../server/url.ts";
+import { cx } from "../server/lib/classes.ts";
+import { url } from "../server/http/url.ts";
 import type { Column, TableOp } from "../server/db.ts";
 import TypeSelect from "./TypeSelect.tsx";
 import HiddenFields from "./HiddenFields.tsx";

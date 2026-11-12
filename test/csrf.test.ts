@@ -1,6 +1,6 @@
 import assert from "node:assert/strict";
 import { describe, test } from "node:test";
-import { blockCrossSite, isCrossSite } from "../src/server/csrf.ts";
+import { blockCrossSite, isCrossSite } from "../src/server/security/csrf.ts";
 
 const req = (headers: Record<string, string>, method = "GET") => ({
   method,

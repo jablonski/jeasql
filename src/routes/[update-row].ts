@@ -1,11 +1,10 @@
-import { deleteRow, insertRow } from "../server/db.ts";
-import { errorMessage } from "../server/errors.ts";
-import { field } from "../server/fields.ts";
-import { insertValues } from "../server/forms.ts";
-import { pickHandler } from "../server/handlers.ts";
-import { redirectHome, redirectOnError, redirectTable } from "../server/redirect.ts";
-import { postOnly, readForm } from "../server/request.ts";
-import { parseKey } from "../server/rowKey.ts";
+import { deleteRow, insertRow, parseKey } from "../server/db.ts";
+import { errorMessage } from "../server/lib/errors.ts";
+import { field } from "../server/lib/fields.ts";
+import { insertValues } from "../server/http/forms.ts";
+import { pickHandler } from "../server/lib/handlers.ts";
+import { redirectHome, redirectOnError, redirectTable } from "../server/http/redirect.ts";
+import { postOnly, readForm } from "../server/http/request.ts";
 
 /** Changes one row of `table` from the submitted form and returns the notice for the user. */
 type RowOpHandler = (

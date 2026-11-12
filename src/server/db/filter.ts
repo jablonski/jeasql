@@ -1,7 +1,7 @@
 // Column filters for table pages: one expression per column, turned into a WHERE clause.
-import { findName, parseNumber, quote } from "./sql.ts";
-import { dict } from "../dict.ts";
 import type { SQLInputValue } from "node:sqlite";
+import { dict } from "../lib/dict.ts";
+import { findName, parseNumber, quote } from "./sql.ts";
 
 /** Filter expressions by column name; empty expressions are left out. */
 export type Filters = Record<string, string>;

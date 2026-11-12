@@ -4,9 +4,9 @@ import { describe, test } from "node:test";
 // auth.ts reads the credentials when it is loaded.
 process.env.AUTH_USERNAME = "admin";
 process.env.AUTH_PASSWORD = "secret";
-const auth = await import("../src/server/auth.ts");
-const { safeNext } = await import("../src/server/redirect.ts");
-const { readFlash, signFlash } = await import("../src/server/flash.ts");
+const auth = await import("../src/server/security/auth.ts");
+const { safeNext } = await import("../src/server/http/redirect.ts");
+const { readFlash, signFlash } = await import("../src/server/http/flash.ts");
 
 const request = (token: string | undefined) =>
   ({ cookies: token === undefined ? {} : { [auth.COOKIE]: token } }) as any;

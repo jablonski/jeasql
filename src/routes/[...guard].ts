@@ -1,10 +1,10 @@
 import type { FastifyRequest } from "fastify";
 import type { RouteProps, ThisContext } from "../types.d.ts";
-import { isLoggedIn } from "../server/auth.ts";
-import { blockCrossSite } from "../server/csrf.ts";
+import { isLoggedIn } from "../server/security/auth.ts";
+import { blockCrossSite } from "../server/security/csrf.ts";
 import { dbPath } from "../server/db.ts";
-import { errorResponse, jsonError, wantsJson } from "../server/request.ts";
-import { url } from "../server/url.ts";
+import { errorResponse, jsonError, wantsJson } from "../server/http/request.ts";
+import { url } from "../server/http/url.ts";
 
 /** Routes that work without logging in. */
 const PUBLIC_ROUTES = [
@@ -54,7 +54,7 @@ export default function (this: ThisContext, { request, reply }: RouteProps) {
   warnOnceIfProxyUntrusted(request);
 
   if (blockCrossSite(request)) {
-    return errorResponse({ request, reply }, 403, "Cross-site request blocked");
+    return errorResponse(request, reply, 403, "Cross-site request blocked");
   }
 
   if (!PUBLIC_ROUTES.includes(request.path) && !isLoggedIn(request)) {
