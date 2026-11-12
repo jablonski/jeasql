@@ -44,12 +44,14 @@ export default function ({ request }: RouteProps) {
     return; // falls through to [404].tsx
   }
   const { info, sort, dir, filters, total, pages, page, rows, rowKey } = loaded;
-  const { object, cols, columnNames, rowidAlias, blobColumns } = info;
+  const { object, cols, columnNames, rowidAlias, blobColumns, generatedColumns } = info;
   const { name, type, sql } = object;
   const isTable = type === "table";
   const stats: RowStats = { count: 0 };
   const filtered = Object.keys(filters).length > 0;
   const pageHref = (p: number) => tableUrl(name, { sort, dir, filters, page: p });
+  // Inserting or deleting a row comes back here, keeping sort, filters and page.
+  const back = pageHref(page);
 
   return (
     <Layout title={name} description={`${type} ${name}`} table={name}>
@@ -73,7 +75,13 @@ export default function ({ request }: RouteProps) {
       </div>
 
       {isTable && (
-        <AddRow name={name} cols={cols} rowidAlias={rowidAlias} blobColumns={blobColumns} />
+        <AddRow
+          name={name}
+          cols={cols}
+          rowidAlias={rowidAlias}
+          blobColumns={blobColumns}
+          back={back}
+        />
       )}
 
       <DataTable
@@ -84,6 +92,8 @@ export default function ({ request }: RouteProps) {
         table={name}
         rowKey={rowKey}
         blobColumns={blobColumns}
+        readOnlyColumns={generatedColumns}
+        back={back}
         stats={stats}
         limit={PAGE_SIZE}
         sortHref={(column) =>

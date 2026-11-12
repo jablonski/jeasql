@@ -10,7 +10,7 @@ import { pickHandler } from "../handlers.ts";
 /** A table or view. */
 export type SchemaObject = { name: string; type: string; sql: string };
 
-/** One row of PRAGMA table_info. */
+/** One row of PRAGMA table_xinfo. */
 export type Column = {
   cid: number;
   name: string;
@@ -18,7 +18,15 @@ export type Column = {
   notnull: number;
   dflt_value: string | null;
   pk: number;
+  /** 0: normal; 1: hidden column of a virtual table; 2: VIRTUAL generated; 3: STORED generated. */
+  hidden: number;
 };
+
+/** True for a generated column, whose value SQLite computes (it can't be written). */
+export const isGenerated = (column: Column) => column.hidden === 2 || column.hidden === 3;
+
+/** Leaves out the hidden columns of virtual tables, which SELECT * leaves out too. */
+const VISIBLE_COLUMNS = "hidden != 1";
 
 /** A column for CREATE TABLE / ADD COLUMN. */
 export type ColumnSpec = {
@@ -53,11 +61,11 @@ export function findObject(name: string) {
 }
 
 /** Table and view names with their column names, e.g. for SQL completion. */
-// One query for all objects (pragma_table_info joined), instead of one PRAGMA per object.
+// One query for all objects (pragma_table_xinfo joined), instead of one PRAGMA per object.
 export function schemaMap() {
   const rows = db()
     .prepare(
-      `SELECT o.name AS tbl, c.name AS col FROM (${OBJECTS_SQL}) AS o, pragma_table_info(o.name) AS c ORDER BY o.type, o.name, c.cid`,
+      `SELECT o.name AS tbl, c.name AS col FROM (${OBJECTS_SQL}) AS o, pragma_table_xinfo(o.name) AS c WHERE c.${VISIBLE_COLUMNS} ORDER BY o.type, o.name, c.cid`,
     )
     .all() as { tbl: string; col: string }[];
   const schema = dict<string[]>();
@@ -67,11 +75,14 @@ export function schemaMap() {
   return schema;
 }
 
-/** Columns of a table or view (PRAGMA table_info). */
+/**
+ * Columns of a table or view, generated ones included (PRAGMA table_xinfo; table_info
+ * leaves them out). Hidden columns of virtual tables are left out.
+ */
 export function tableColumns(table: string) {
   return db()
-    .prepare(`PRAGMA table_info(${quote(table)})`)
-    .all() as Column[];
+    .prepare(`SELECT * FROM pragma_table_xinfo(?) WHERE ${VISIBLE_COLUMNS} ORDER BY cid`)
+    .all(table) as Column[];
 }
 
 /** Indexes of a table (PRAGMA index_list). */

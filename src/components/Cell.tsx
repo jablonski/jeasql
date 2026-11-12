@@ -1,3 +1,4 @@
+import { cx } from "../server/classes.ts";
 import { blobUrl } from "../server/links.ts";
 
 /** Longer cell texts are cut off; the full text (up to MAX_TITLE_TEXT) goes into the tooltip. */
@@ -10,8 +11,9 @@ const MAX_CELL_TEXT = 80;
 const MAX_TITLE_TEXT = 1000;
 
 /**
- * One table cell, styled by value type. With `table`, `column` and `rowKey`, the
- * cell can be edited (see browser/scripts/cell-editor.ts) and a BLOB links to its download.
+ * One table cell, styled by value type. With `table`, `column` and `rowKey`, a BLOB
+ * links to its download and, unless `readOnly` (e.g. a generated column), the cell can
+ * be edited (see browser/scripts/cell-editor.ts).
  * Also rendered by /update-cell, so a saved cell looks exactly like a loaded one.
  */
 export default function Cell({
@@ -19,22 +21,33 @@ export default function Cell({
   table,
   column,
   rowKey,
+  readOnly = false,
 }: {
   value: unknown;
   table?: string;
   column?: string;
   rowKey?: Record<string, unknown>;
+  readOnly?: boolean;
 }) {
-  const editable = Boolean(table && column && rowKey);
+  const located = Boolean(table && column && rowKey);
+  const editable = located && !readOnly;
+  // Read-only in a table whose other cells can be edited: marked, so it doesn't look editable.
+  const locked = located && readOnly;
   const kind = kindOf(value);
   const blob = kind === "blob";
   const isNull = kind === "null";
   const text = blob || isNull ? "" : String(value);
-  const hint = editable ? (blob ? "Double-click to replace" : "Double-click to edit") : undefined;
-  const blobHref = editable && blob ? blobUrl(table!, column!, rowKey!) : undefined;
+  const hint = editable
+    ? blob
+      ? "Double-click to replace"
+      : "Double-click to edit"
+    : locked
+      ? "Computed by SQLite – can't be edited"
+      : undefined;
+  const blobHref = located && blob ? blobUrl(table!, column!, rowKey!) : undefined;
   return (
     <td
-      class={CELL_CLASS[kind]}
+      class={cx(CELL_CLASS[kind], locked && "readonly")}
       data-column={editable ? column : undefined}
       data-value={editable && !isNull && !blob ? editText(value, text) : undefined}
       data-blob={editable && blob ? "true" : undefined}

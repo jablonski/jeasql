@@ -79,11 +79,12 @@ export const sign = (value: string) =>
 
 /**
  * Constant-time string comparison. Compares HMACs, which always have the same
- * length, so not even the length of the expected value leaks through timing.
+ * length, so not even the length of the expected value leaks through timing
+ * (equal HMACs mean equal strings: a collision of SHA-256 is out of reach).
  */
 export function safeEqual(a: string, b: string) {
   const digest = (value: string) => createHmac("sha256", SECRET).update(value).digest();
-  return timingSafeEqual(digest(a), digest(b)) && a === b;
+  return timingSafeEqual(digest(a), digest(b));
 }
 
 /** Checks submitted credentials against the environment. */

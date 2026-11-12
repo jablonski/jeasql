@@ -53,11 +53,7 @@ describe("createTable", () => {
     ]);
     assert.match(sqlOf("typed"), /"c" DECIMAL \( 10 , 2 \)/);
     for (const type of ["TEXT, sneaky INTEGER", "TEXT(1)(2)", "INT(1, 2, 3)", "(5)", "TEXT("]) {
-      assert.throws(
-        () => createTable("bad", [{ name: "a", type }]),
-        /Invalid column type/,
-        type,
-      );
+      assert.throws(() => createTable("bad", [{ name: "a", type }]), /Invalid column type/, type);
     }
     assert.equal(findObject("bad"), undefined);
   });
@@ -110,11 +106,20 @@ describe("listObjects / schemaMap", () => {
     assert.ok(!names.some((n) => n.startsWith("sqlite_")));
     assert.deepEqual(schemaMap().vw, ["id"]);
   });
+  test("schemaMap lists generated columns too", () => {
+    db().exec("CREATE TABLE withgen (a, g GENERATED ALWAYS AS (a + 1))");
+    assert.deepEqual(schemaMap().withgen, ["a", "g"]);
+  });
   test("schemaMap lists the columns of every object in declared order", () => {
     db().exec("CREATE TABLE ordered (z, a, m)");
     const schema = schemaMap();
     assert.deepEqual(schema.ordered, ["z", "a", "m"]);
-    assert.deepEqual(Object.keys(schema).toSorted(), listObjects().map((o) => o.name).toSorted());
+    assert.deepEqual(
+      Object.keys(schema).toSorted(),
+      listObjects()
+        .map((o) => o.name)
+        .toSorted(),
+    );
   });
   test("schemaMap handles tables named like Object.prototype members", () => {
     db().exec('CREATE TABLE "constructor" (a); CREATE TABLE "__proto__" (b)');
@@ -186,7 +191,11 @@ describe("createTable keys and defaults", () => {
     ]);
     assert.deepEqual(
       tableColumns("composite").map((c) => [c.name, c.pk]),
-      [["a", 1], ["b", 2], ["c", 0]],
+      [
+        ["a", 1],
+        ["b", 2],
+        ["c", 0],
+      ],
     );
   });
 
@@ -208,7 +217,9 @@ describe("createTable keys and defaults", () => {
 describe("foreign keys", () => {
   test("are enforced", () => {
     assert.equal(Number(db().prepare("PRAGMA foreign_keys").get()!.foreign_keys), 1);
-    db().exec("CREATE TABLE parent (id INTEGER PRIMARY KEY); CREATE TABLE child (p REFERENCES parent(id))");
+    db().exec(
+      "CREATE TABLE parent (id INTEGER PRIMARY KEY); CREATE TABLE child (p REFERENCES parent(id))",
+    );
     assert.throws(() => db().exec("INSERT INTO child VALUES (42)"), /FOREIGN KEY/);
   });
 });

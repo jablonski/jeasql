@@ -15,10 +15,23 @@ describe("perRequest", () => {
   });
   test("runs every time without a request, and does not store errors", () => {
     let calls = 0;
-    assert.equal(perRequest({}, "k", () => ++calls), 1);
-    assert.equal(perRequest(undefined, "k", () => ++calls), 2);
+    assert.equal(
+      perRequest({}, "k", () => ++calls),
+      1,
+    );
+    assert.equal(
+      perRequest(undefined, "k", () => ++calls),
+      2,
+    );
     const request = {} as FastifyRequest;
-    assert.throws(() => perRequest({ request }, "e", () => { throw new Error("x"); }));
-    assert.equal(perRequest({ request }, "e", () => "ok"), "ok");
+    assert.throws(() =>
+      perRequest({ request }, "e", () => {
+        throw new Error("x");
+      }),
+    );
+    assert.equal(
+      perRequest({ request }, "e", () => "ok"),
+      "ok",
+    );
   });
 });

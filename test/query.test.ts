@@ -6,7 +6,8 @@ import { tempDatabase } from "./helpers.ts";
 
 tempDatabase();
 
-const count = (table: string) => Number(db().prepare(`SELECT count(*) AS n FROM ${table}`).get()!.n);
+const count = (table: string) =>
+  Number(db().prepare(`SELECT count(*) AS n FROM ${table}`).get()!.n);
 
 describe("runQuery", () => {
   test("keeps columns that share a name apart", () => {
@@ -80,7 +81,10 @@ describe("runQuery paging", () => {
   test("keeps the query's own ORDER BY when paged (also DESC)", () => {
     const result = runQuery("SELECT n FROM nums ORDER BY n DESC", { limit: 2, offset: 1 });
     assert.equal(result.paged, true);
-    assert.deepEqual([...result.rows].map((r) => Number(r[0])), [3, 2]);
+    assert.deepEqual(
+      [...result.rows].map((r) => Number(r[0])),
+      [3, 2],
+    );
   });
 
   test("leaves EXPLAIN and writes unpaged", () => {

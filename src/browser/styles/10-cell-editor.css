@@ -7,6 +7,17 @@ td[data-column]:hover {
   box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--accent) 35%, transparent);
 }
 
+/* Cells that can't be edited in an editable table (generated columns): faint stripes. */
+td.readonly {
+  background: repeating-linear-gradient(
+    -45deg,
+    transparent 0 6px,
+    color-mix(in srgb, var(--border) 45%, transparent) 6px 7px
+  );
+  color: var(--text-2);
+  cursor: not-allowed;
+}
+
 td.editing {
   position: relative;
   padding: 0.3rem;

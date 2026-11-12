@@ -171,6 +171,41 @@ describe("update-row", () => {
     assert.equal(flashOf(deleted.location).notice, "Row deleted.");
   });
 
+  test("returns to the page the form was sent from, keeping sort, filters and page", async () => {
+    const back = "/show-table?name=ins&sort=a&dir=desc&page=2&f.a=x";
+    const added = call(updateRow, {
+      method: "POST",
+      body: { table: "ins", op: "insert", "v.a": "x", back },
+    });
+    await added.result;
+    assert.ok(added.location!.startsWith(`${back}&notice=`));
+    assert.match(flashOf(added.location).notice, /^Row added/);
+    // Errors go back there too.
+    const failed = call(updateRow, {
+      method: "POST",
+      body: { table: "ins", op: "delete", key: '{"rowid":99}', back },
+    });
+    await failed.result;
+    assert.ok(failed.location!.startsWith(`${back}&error=`));
+  });
+
+  test("ignores a back link that isn't a page of the same table", async () => {
+    db().exec("CREATE TABLE other (a)");
+    for (const back of [
+      "https://evil.example/show-table?name=ins",
+      "//evil.example/show-table?name=ins",
+      "/show-table?name=other",
+      "/query-database?name=ins",
+    ]) {
+      const response = call(updateRow, {
+        method: "POST",
+        body: { table: "ins", op: "insert", back },
+      });
+      await response.result;
+      assert.match(response.location!, /^\/show-table\?name=ins&notice=/, back);
+    }
+  });
+
   test("reports unknown operations", async () => {
     const response = call(updateRow, {
       method: "POST",

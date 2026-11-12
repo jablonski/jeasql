@@ -1,5 +1,8 @@
 import type { Column } from "../server/db.ts";
 
+/** How a generated column is stored, by its `hidden` value (see Column). */
+const GENERATED: Record<number, string> = { 2: "virtual", 3: "stored" };
+
 /** Column definitions of a table or view. */
 export default function ColumnList({ cols }: { cols: Column[] }) {
   return (
@@ -14,6 +17,7 @@ export default function ColumnList({ cols }: { cols: Column[] }) {
               <th>Not null</th>
               <th>Default</th>
               <th>Primary key</th>
+              <th>Generated</th>
             </tr>
           </thead>
           <tbody>
@@ -24,6 +28,7 @@ export default function ColumnList({ cols }: { cols: Column[] }) {
                 <td>{column.notnull ? "yes" : ""}</td>
                 <td>{column.dflt_value ?? ""}</td>
                 <td>{column.pk ? "yes" : ""}</td>
+                <td>{GENERATED[column.hidden] ?? ""}</td>
               </tr>
             ))}
           </tbody>

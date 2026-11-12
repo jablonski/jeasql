@@ -41,9 +41,16 @@ export default postOnly(async function ({ request, reply }) {
   const { fields, files } = form;
   const table = field(fields, "table");
   const op = field(fields, "op");
+  // The table page the form was sent from, so sort, filters and page are kept.
+  const back = field(fields, "back");
 
-  return redirectOnError(reply, table, () => {
-    const notice = pickHandler(ROW_OPS, op)(table, fields, files);
-    return redirectTable(reply, table, { notice });
-  });
+  return redirectOnError(
+    reply,
+    table,
+    () => {
+      const notice = pickHandler(ROW_OPS, op)(table, fields, files);
+      return redirectTable(reply, table, { notice }, back);
+    },
+    back,
+  );
 });

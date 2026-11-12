@@ -1,55 +1,61 @@
+import { isGenerated } from "../server/db.ts";
 import { insertField } from "../server/forms.ts";
 import { url } from "../server/url.ts";
 import type { Column } from "../server/db.ts";
 import HiddenFields from "./HiddenFields.tsx";
 
 /**
- * Collapsible form to insert a row. Blank fields get the column default.
- * `rowidAlias`: the column SQLite fills in automatically; `blobColumns` accept
- * file uploads (see TableInfo).
+ * Collapsible form to insert a row. Blank fields get the column default; generated
+ * columns get no field. `rowidAlias`: the column SQLite fills in automatically;
+ * `blobColumns` accept file uploads (see TableInfo). `back`: the table page to
+ * return to (with its sort, filters and page).
  */
 export default function AddRow({
   name,
   cols,
   rowidAlias,
   blobColumns,
+  back,
 }: {
   name: string;
   cols: Column[];
   rowidAlias?: string;
   blobColumns: string[];
+  back?: string;
 }) {
   return (
     <details class="panel">
       <summary>+ Add row</summary>
       <form method="post" action={url("/update-row")} enctype="multipart/form-data" class="stack">
-        <HiddenFields fields={{ op: "insert", table: name }} />
+        <HiddenFields fields={{ op: "insert", table: name, back }} />
         <div class="grid">
-          {cols.map((column) => (
-            <label class="field">
-              <span>
-                {column.name} <small>{columnFlags(column)}</small>
-              </span>
-              <input
-                name={insertField.value(column.name)}
-                placeholder={defaultPlaceholder(column, rowidAlias)}
-              />
-              {blobColumns.includes(column.name) && (
+          {cols
+            .filter((column) => !isGenerated(column))
+            .map((column) => (
+              <label class="field">
+                <span>
+                  {column.name} <small>{columnFlags(column)}</small>
+                </span>
                 <input
-                  type="file"
-                  name={insertField.file(column.name)}
-                  aria-label={`Upload file for ${column.name}`}
-                  title="A chosen file is stored as BLOB instead of the text above"
+                  name={insertField.value(column.name)}
+                  placeholder={defaultPlaceholder(column, rowidAlias)}
                 />
-              )}
-              <label class="inline">
-                <input type="checkbox" name={insertField.isNull(column.name)} /> NULL
+                {blobColumns.includes(column.name) && (
+                  <input
+                    type="file"
+                    name={insertField.file(column.name)}
+                    aria-label={`Upload file for ${column.name}`}
+                    title="A chosen file is stored as BLOB instead of the text above"
+                  />
+                )}
+                <label class="inline">
+                  <input type="checkbox" name={insertField.isNull(column.name)} /> NULL
+                </label>
+                <label class="inline">
+                  <input type="checkbox" name={insertField.isEmpty(column.name)} /> Empty
+                </label>
               </label>
-              <label class="inline">
-                <input type="checkbox" name={insertField.isEmpty(column.name)} /> Empty
-              </label>
-            </label>
-          ))}
+            ))}
         </div>
         <div class="actions">
           <button type="submit">Insert row</button>

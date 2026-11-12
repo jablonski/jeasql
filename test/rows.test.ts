@@ -77,9 +77,14 @@ describe("updateCell", () => {
     assert.equal(updateCell("plain", key, "a", "1e+21").value, 1e21);
   });
   test("folds only ASCII case, like SQLite: Ä and ä are different columns", () => {
-    db().exec(`CREATE TABLE umlaut ("Ä" TEXT, "ä" TEXT); INSERT INTO umlaut VALUES ('upper', 'lower')`);
+    db().exec(
+      `CREATE TABLE umlaut ("Ä" TEXT, "ä" TEXT); INSERT INTO umlaut VALUES ('upper', 'lower')`,
+    );
     assert.equal(updateCell("umlaut", { rowid: 1 }, "ä", "changed").column, "ä");
-    assert.deepEqual({ ...db().prepare("SELECT * FROM umlaut").get() }, { Ä: "upper", ä: "changed" });
+    assert.deepEqual(
+      { ...db().prepare("SELECT * FROM umlaut").get() },
+      { Ä: "upper", ä: "changed" },
+    );
   });
   test("matches column names case-insensitively and returns the declared name", () => {
     const stored = updateCell("plain", key, "A", "7");
@@ -110,11 +115,19 @@ describe("updateCell", () => {
     insertRow("plain", { a: "big2" });
     db().exec(`UPDATE plain SET rowid = ${big} WHERE a = 'big2'`);
     const key = JSON.parse(keyJson({ rowid: big }));
-    assert.deepEqual(updateCell("plain", key, "a", "ok"), { column: "a", value: "ok", key: { rowid: big } });
+    assert.deepEqual(updateCell("plain", key, "a", "ok"), {
+      column: "a",
+      value: "ok",
+      key: { rowid: big },
+    });
   });
   test("returns the new key when an INTEGER PRIMARY KEY (the rowid) is edited", () => {
     db().exec("CREATE TABLE ipk (id INTEGER PRIMARY KEY, v TEXT); INSERT INTO ipk VALUES (1, 'a')");
-    assert.deepEqual(updateCell("ipk", { rowid: 1 }, "id", "5"), { column: "id", value: 5n, key: { rowid: 5n } });
+    assert.deepEqual(updateCell("ipk", { rowid: 1 }, "id", "5"), {
+      column: "id",
+      value: 5n,
+      key: { rowid: 5n },
+    });
     assert.equal(updateCell("ipk", { rowid: 5 }, "v", "b").value, "b");
   });
   test("returns the new key when a WITHOUT ROWID key column is edited", () => {
@@ -227,6 +240,17 @@ describe("readTablePage", () => {
         Number(r[1]),
       );
     assert.deepEqual([...page(0), ...page(2)], [1, 2, 3, 4]);
+  });
+  test("breaks ties in sorted views by the other columns, as views have no key", () => {
+    db().exec(`
+      CREATE TABLE viewties (n INTEGER, s TEXT);
+      INSERT INTO viewties VALUES (1, 'b'), (1, 'a'), (1, 'c');
+      CREATE VIEW vties AS SELECT * FROM viewties;
+    `);
+    const info = describeTable("vties")!;
+    const page = (offset: number) =>
+      [...readTablePage(info, { sort: "n", limit: 2, offset }).rows].map((r) => r[1]);
+    assert.deepEqual([...page(0), ...page(2)], ["a", "b", "c"]);
   });
   test("ignores unknown sort columns and has no row key for views", () => {
     const { rows, rowKey } = readTablePage(describeTable("v")!, {
@@ -356,9 +380,40 @@ describe("generated columns", () => {
     const info = describeTable("gen")!;
     const { rows, rowKey } = readTablePage(info, { limit: 10, offset: 0 });
     const read = [...rows];
-    assert.deepEqual(info.columnNames, ["a", "c"]);
-    assert.deepEqual(read.map((r) => r.slice(0, 2)), [[1n, 2n], [2n, 1n]]);
-    assert.deepEqual(read.map((r) => rowKey!(r)), [{ rowid: 1n }, { rowid: 2n }]);
+    assert.deepEqual(info.columnNames, ["a", "g", "c"]);
+    assert.deepEqual(
+      read.map((r) => r.slice(0, 3)),
+      [
+        [1n, 100n, 2n],
+        [2n, 200n, 1n],
+      ],
+    );
+    assert.deepEqual(
+      read.map((r) => rowKey!(r)),
+      [{ rowid: 1n }, { rowid: 2n }],
+    );
+  });
+  test("are listed as generated, sortable and filterable, but can't be written", () => {
+    db().exec("CREATE TABLE genblob (a, g GENERATED ALWAYS AS (a) STORED)");
+    const info = describeTable("gen")!;
+    assert.deepEqual(info.generatedColumns, ["g"]);
+    assert.deepEqual(describeTable("genblob")!.blobColumns, ["a"]);
+    assert.deepEqual(
+      describeTable("genblob")!.cols.map((c) => c.hidden),
+      [0, 3],
+    );
+    const sorted = readTablePage(info, {
+      sort: "g",
+      dir: "desc",
+      filters: { g: ">=100" },
+      limit: 10,
+      offset: 0,
+    });
+    assert.deepEqual(
+      [...sorted.rows].map((r) => r[1]),
+      [200n, 100n],
+    );
+    assert.throws(() => updateCell("gen", { rowid: 1 }, "g", "5"), /generated/);
   });
 });
 

@@ -1,6 +1,13 @@
 // Reading and changing single rows and cells.
 import { db, holdCursor } from "./connection.ts";
-import { assertTable, findObject, hasBlobAffinity, indexes, tableColumns } from "./schema.ts";
+import {
+  assertTable,
+  findObject,
+  hasBlobAffinity,
+  indexes,
+  isGenerated,
+  tableColumns,
+} from "./schema.ts";
 import {
   findName,
   PAGE_CLAUSE,
@@ -34,8 +41,10 @@ export type TableInfo = {
   withoutRowid: boolean;
   /** The INTEGER PRIMARY KEY column that is an alias for the rowid, if any (see rowidAliasOf). */
   rowidAlias?: string;
-  /** Columns with BLOB affinity, which accept file uploads. */
+  /** Columns with BLOB affinity, which accept file uploads (generated ones excluded). */
   blobColumns: string[];
+  /** Generated columns: shown, sorted and filtered like others, but never written. */
+  generatedColumns: string[];
 };
 
 /** Everything about a table or view in one go; undefined if there is none by that name. */
@@ -46,14 +55,18 @@ export function describeTable(name: string): TableInfo | undefined {
   }
   const cols = tableColumns(object.name);
   const withoutRowid = isWithoutRowid(object);
+  const namesOf = (columns: Column[]) => columns.map((column) => column.name);
   return {
     object,
     cols,
-    columnNames: cols.map((column) => column.name),
+    columnNames: namesOf(cols),
     keyColumns: keyColumnsOf(object, cols, withoutRowid),
     withoutRowid,
     rowidAlias: rowidAliasOf(object, cols, withoutRowid),
-    blobColumns: cols.filter((column) => hasBlobAffinity(column.type)).map((column) => column.name),
+    blobColumns: namesOf(
+      cols.filter((column) => hasBlobAffinity(column.type) && !isGenerated(column)),
+    ),
+    generatedColumns: namesOf(cols.filter(isGenerated)),
   };
 }
 
@@ -142,17 +155,24 @@ export function readTablePage(
 ) {
   const sortColumn = findName(columnNames, sort);
   const keySelect = keyColumns.map((name) => `, ${quote(name)}`).join("");
-  // Only known column names and a fixed direction reach the SQL text.
-  // The key columns break ties, so rows with equal sort values keep one order
-  // across pages (otherwise OFFSET paging may repeat or skip them).
+  // Only known column names, column positions and a fixed direction reach the SQL text.
+  // Tie-breakers keep rows with equal sort values in one order across pages (otherwise
+  // OFFSET paging may repeat or skip them): the key columns, or for views (which have
+  // none) all columns by position. Unsorted views get no ORDER BY, so big ones aren't
+  // sorted just to show a page.
+  const tieBreakers = keyColumns.length
+    ? keyColumns.map(quote)
+    : sortColumn
+      ? columnNames.map((_, i) => String(i + 1))
+      : [];
   const terms = [
     ...(sortColumn ? [`${quote(sortColumn)} ${dir === "desc" ? "DESC" : "ASC"}`] : []),
-    ...keyColumns.map(quote),
+    ...tieBreakers,
   ];
   const { where, params } = filterClause(filters);
-  // Tables list their columns explicitly: SELECT * would also return generated columns,
-  // which PRAGMA table_info leaves out, shifting values against columnNames and keys.
-  // Views keep *: their PRAGMA names may be renamed duplicates ("id:1") that can't be selected.
+  // Tables list their columns explicitly, so values line up with columnNames and the
+  // key columns after them whatever SELECT * would return.
+  // Views keep *: their PRAGMA names may be renamed duplicates ("id:1").
   const select = object.type === "table" ? quoteList(columnNames) : "*";
   const order = terms.length ? ` ORDER BY ${terms.join(", ")}` : "";
   const statement = prepareBig(
@@ -190,6 +210,9 @@ export function updateCell(
   const { cols, keyColumns, where, values } = locateRow(table, key);
   const columnDef = requireColumn(cols, name);
   const column = columnDef.name;
+  if (isGenerated(columnDef)) {
+    throw new Error(`Column ${column} is generated and can't be changed`);
+  }
   const bound = bindValue(columnDef, value);
   // RETURNING reads the row as stored, by its new key if that changed.
   // Rows as arrays, so a key column can't clash with the value's alias.
@@ -241,11 +264,7 @@ function locateRow(table: string, key: RowKey) {
 
 /** The column named `name` (see findName); throws if there is none. */
 function requireColumn(cols: Column[], name: string) {
-  const declared = findName(
-    cols.map((column) => column.name),
-    name,
-  );
-  const columnDef = cols.find((column) => column.name === declared);
+  const columnDef = cols.find((column) => sameSqlName(column.name, name));
   if (!columnDef) {
     throw new Error(`Unknown column: ${name}`);
   }

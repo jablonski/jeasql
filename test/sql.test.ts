@@ -66,7 +66,17 @@ describe("parseNumber / SQL_NUMBER", () => {
     assert.equal(parseNumber("1e+21"), 1e21);
   });
   test("keeps non-canonical or lossy forms as text", () => {
-    for (const value of ["007", "+1", ".5", "1.", "0x1F", "1e999", "9223372036854775808", "", "abc"]) {
+    for (const value of [
+      "007",
+      "+1",
+      ".5",
+      "1.",
+      "0x1F",
+      "1e999",
+      "9223372036854775808",
+      "",
+      "abc",
+    ]) {
       assert.equal(parseNumber(value), undefined, value);
     }
   });

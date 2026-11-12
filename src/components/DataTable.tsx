@@ -19,8 +19,9 @@ export type RowStats = { count: number; truncated?: boolean };
 /**
  * Renders query results. `sortHref` (optional) makes column headers sortable.
  * With `table` and `rowKey` (reads a row's key), cells can be edited (see
- * browser/scripts/cell-editor.ts); `blobColumns` get a file upload in the editor.
- * Editable rows can also be deleted. With `filter`, a row of inputs filters by column.
+ * browser/scripts/cell-editor.ts), except `readOnlyColumns`; `blobColumns` get a file
+ * upload in the editor. Editable rows can also be deleted; `back` is the page to return
+ * to afterwards. With `filter`, a row of inputs filters by column.
  * `rows` are arrays whose first values match `columns` (more may follow, e.g. key
  * values for `rowKey`). They are read lazily (e.g. a SQLite cursor), so the page
  * streams while rows load; `stats.count` holds the number of rows once the table
@@ -36,6 +37,8 @@ export default function DataTable({
   table,
   rowKey,
   blobColumns = [],
+  readOnlyColumns = [],
+  back,
   stats = { count: 0 },
   limit = Infinity,
   filter,
@@ -50,6 +53,8 @@ export default function DataTable({
   table?: string;
   rowKey?: (row: Row) => RowKey;
   blobColumns?: string[];
+  readOnlyColumns?: string[];
+  back?: string;
   filter?: FilterForm;
 }) {
   const editable = Boolean(table && rowKey);
@@ -125,7 +130,7 @@ export default function DataTable({
                         action={url("/update-row")}
                         data-js-confirm="Delete this row?"
                       >
-                        <HiddenFields fields={{ op: "delete", table, key }} />
+                        <HiddenFields fields={{ op: "delete", table, key, back }} />
                         <button
                           type="submit"
                           class="icon"
@@ -143,6 +148,7 @@ export default function DataTable({
                       table={editable ? table : undefined}
                       column={column}
                       rowKey={keyValues}
+                      readOnly={readOnlyColumns.includes(column)}
                     />
                   ))}
                 </tr>
