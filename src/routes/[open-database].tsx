@@ -72,7 +72,8 @@ export default function ({ request, reply }: RouteProps) {
                 Create the file if it doesn't exist
               </label>
               <span class="meta">
-                Relative paths start at <code>{process.cwd()}</code>
+                Relative paths start at <code>{process.cwd()}</code>; use <code>:memory:</code> for an
+                in-memory database
               </span>
             </div>
           </form>

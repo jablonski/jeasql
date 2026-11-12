@@ -4,6 +4,9 @@ import { resolve } from "node:path";
 import { DatabaseSync } from "node:sqlite";
 import { requireText } from "../fields.ts";
 
+/** SQLite's name for a fresh in-memory database. */
+const MEMORY = ":memory:";
+
 /** Path of the open database file, or "" if none is open yet. */
 export function dbPath() {
   return globalThis.$dbPath ?? "";
@@ -38,8 +41,11 @@ function assertNoTransaction() {
  */
 export function openDatabase(path: string, create: boolean = false) {
   assertNoTransaction();
-  const file = resolve(requireText(path, "Path is required"));
-  if (!create && !existsSync(file)) {
+  const text = requireText(path, "Path is required");
+  // ":memory:" is SQLite's in-memory database, not a file: keep it as is.
+  const memory = text === MEMORY;
+  const file = memory ? MEMORY : resolve(text);
+  if (!memory && !create && !existsSync(file)) {
     throw new Error(`File not found: ${file}`);
   }
   const next = new DatabaseSync(file);
