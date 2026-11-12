@@ -1,10 +1,8 @@
-import { attempt } from "../server/errors.ts";
 import { tableUrl } from "../server/links.ts";
 import { memoListObjects } from "../server/memo.ts";
 import { url } from "../server/url.ts";
 import type { ThisContext } from "../types.d.ts";
 import ErrorMessage from "./ErrorMessage.tsx";
-import type { SchemaObject } from "../server/db.ts";
 
 /** Side menu: SQL query, new table, and the tables and views of the open database. */
 export default function Sidebar(
@@ -19,10 +17,8 @@ export default function Sidebar(
     table: string;
   },
 ) {
-  const { value: objects, error } = attempt<SchemaObject[]>(
-    () => (file ? memoListObjects(this) : []),
-    [],
-  );
+  // Without an open database there is nothing to list, and no error to show.
+  const { value: objects, error } = file ? memoListObjects(this) : { value: [], error: "" };
 
   /** A menu link; disabled while no database is open. */
   const link = (path: string, label: string) => (

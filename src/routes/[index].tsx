@@ -1,8 +1,6 @@
 import ErrorMessage from "../components/ErrorMessage.tsx";
 import Layout from "../components/Layout.tsx";
 import { countRows, dbPath, OVERVIEW_COUNT_LIMIT } from "../server/db.ts";
-import type { SchemaObject } from "../server/db.ts";
-import { attempt } from "../server/errors.ts";
 import { tableUrl } from "../server/links.ts";
 import { countLabel } from "../server/paging.ts";
 import { memoListObjects } from "../server/memo.ts";
@@ -10,7 +8,7 @@ import type { ThisContext } from "../types.d.ts";
 
 /** GET / – overview of the open database: its tables and views with (capped) row counts. */
 export default function (this: ThisContext) {
-  const { value: objects, error } = attempt<SchemaObject[]>(() => memoListObjects(this), []);
+  const { value: objects, error } = memoListObjects(this);
 
   return (
     <Layout title="Overview" description="Tables and views of the SQLite database">

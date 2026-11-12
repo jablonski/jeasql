@@ -1,5 +1,7 @@
 // Per-request memoization, for lookups several components of one page repeat.
 import { listObjects } from "./db.ts";
+import type { SchemaObject } from "./db.ts";
+import { attempt } from "./errors.ts";
 import type { ThisContext } from "../types.d.ts";
 
 const caches = new WeakMap<object, Map<string, unknown>>();
@@ -25,6 +27,9 @@ export function perRequest<T>(context: ThisContext | undefined, key: string, fn:
   return cache.get(key) as T;
 }
 
-/** listObjects, queried once per request (the overview and the sidebar both list them). */
+/**
+ * listObjects, queried once per request (the overview and the sidebar both list them).
+ * Never throws: on failure the value is [] and `error` says why (see attempt).
+ */
 export const memoListObjects = (context: ThisContext | undefined) =>
-  perRequest(context, "listObjects", listObjects);
+  attempt<SchemaObject[]>(() => perRequest(context, "listObjects", listObjects), []);
