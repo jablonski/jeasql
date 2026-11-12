@@ -92,6 +92,7 @@ export function foreignKeys(table: string) {
  * Row count, or undefined if it fails (e.g. a view referencing a dropped table).
  * With `limit`, counting stops after limit + 1 rows, so a result above `limit`
  * only means "more than that" (cheap enough for many big tables at once).
+ * Exported for tests; pages use countRows.
  */
 export function tryCount(table: string, limit?: number, filters?: Filters) {
   const { where, params } = filterClause(filters);
@@ -107,7 +108,7 @@ export function tryCount(table: string, limit?: number, filters?: Filters) {
   }
 }
 
-/** Counting stops here, so pages stay fast for big tables (see countRows). */
+/** Counting stops here, so pages stay fast for big tables (see countRows). Exported for tests. */
 export const COUNT_LIMIT = 100_000;
 
 /** A row count that may be capped: `capped` means "more than `count`"; undefined if counting failed. */

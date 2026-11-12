@@ -1,14 +1,13 @@
 import { alterTable } from "../server/db.ts";
-import { errorMessage } from "../server/errors.ts";
-import { redirectHome, redirectTable } from "../server/redirect.ts";
-import { formBody, postOnly } from "../server/request.ts";
 import { checked, field } from "../server/fields.ts";
+import { redirectHome, redirectOnError, redirectTable } from "../server/redirect.ts";
+import { formBody, postOnly } from "../server/request.ts";
 
 /** POST /alter-table – structural change on a table (see alterTable in server/db/schema.ts). */
 export default postOnly(function ({ request, reply }) {
   const fields = formBody(request);
   const table = field(fields, "table");
-  try {
+  return redirectOnError(reply, table, () => {
     const { notice, table: next } = alterTable(table, {
       op: field(fields, "op"),
       name: field(fields, "name"),
@@ -19,7 +18,5 @@ export default postOnly(function ({ request, reply }) {
     });
     // No table left to show after a drop.
     return next ? redirectTable(reply, next, { notice }) : redirectHome(reply, { notice });
-  } catch (e) {
-    return redirectTable(reply, table, { error: errorMessage(e) });
-  }
+  });
 });

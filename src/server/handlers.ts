@@ -1,3 +1,4 @@
+// Dispatching user-chosen operations (op fields) to their handlers.
 /**
  * The handler for `op` from a map of operation handlers; throws for an unknown
  * operation. `op` is user input, so only own keys count (not "constructor" etc.).

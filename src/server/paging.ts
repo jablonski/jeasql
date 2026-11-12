@@ -1,3 +1,4 @@
+// Paging of tables and query results: page size, page numbers and row counts.
 import type { RowCount } from "./db.ts";
 
 /** Rows per page, for tables and query results. */

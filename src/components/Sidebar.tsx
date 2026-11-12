@@ -1,3 +1,4 @@
+import { cx } from "../server/classes.ts";
 import { tableUrl } from "../server/links.ts";
 import { memoListObjects } from "../server/memo.ts";
 import { url } from "../server/url.ts";
@@ -25,7 +26,7 @@ export default function Sidebar(
     <a
       href={file ? url(path) : undefined}
       aria-disabled={file ? undefined : "true"}
-      class={route === path ? "active" : undefined}
+      class={cx(route === path && "active")}
     >
       {label}
     </a>
@@ -42,7 +43,7 @@ export default function Sidebar(
           <>
             <h6>{type}s</h6>
             {items.map(({ name }) => (
-              <a href={tableUrl(name)} class={table === name ? "active" : undefined}>
+              <a href={tableUrl(name)} class={cx(table === name && "active")}>
                 {name}
               </a>
             ))}

@@ -2,10 +2,10 @@ import ErrorMessage from "../components/ErrorMessage.tsx";
 import Layout from "../components/Layout.tsx";
 import NewColumnRow from "../components/NewColumnRow.tsx";
 import { createTable } from "../server/db.ts";
+import { field } from "../server/fields.ts";
 import { columnRows, columnsFromForm } from "../server/forms.ts";
 import { redirectTable } from "../server/redirect.ts";
 import { formBody, handlePost, isPost } from "../server/request.ts";
-import { field } from "../server/fields.ts";
 import { url } from "../server/url.ts";
 import type { RouteProps } from "../types.d.ts";
 

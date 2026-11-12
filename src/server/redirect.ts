@@ -1,6 +1,7 @@
+// Redirects after a form submission, with flash messages, and safe redirect targets.
 import type { FastifyReply } from "fastify";
 import { findObject } from "./db.ts";
-import { attempt } from "./errors.ts";
+import { attempt, errorMessage } from "./errors.ts";
 import { tableUrl } from "./links.ts";
 import { url } from "./url.ts";
 import { signFlash } from "./flash.ts";
@@ -36,4 +37,16 @@ export function safeNext(next: unknown): string {
   return typeof next === "string" && /^\/(?![/\\])/.test(next) && !/[\\\s]/.test(next)
     ? next
     : url("/");
+}
+
+/**
+ * Runs a pure action route's `action`, which answers with a redirect. If it throws,
+ * redirects to `table` with the error instead (to the overview without such a table).
+ */
+export function redirectOnError(reply: FastifyReply, table: string, action: () => FastifyReply) {
+  try {
+    return action();
+  } catch (e) {
+    return redirectTable(reply, table, { error: errorMessage(e) });
+  }
 }

@@ -1,3 +1,4 @@
+// Filter row of data tables: instant clearing and stable column widths.
 import { parseJson } from "./json.ts";
 import { load, save } from "./storage.ts";
 
@@ -6,7 +7,7 @@ document.addEventListener("input", (e) => {
   const input = e.target;
   if (
     input instanceof HTMLInputElement &&
-    input.closest(".filter-row") &&
+    input.closest("[data-js-filter-row]") &&
     input.value === "" &&
     input.defaultValue !== "" // only filters that are applied now, not ones being typed
   ) {
@@ -19,7 +20,7 @@ document.addEventListener("input", (e) => {
 // and fixed while filters are applied: a fixed table layout takes them exactly
 // (min-width or width on cells are only hints for automatic layout, which still
 // redistributes space by content). Longer content is cut off with an ellipsis.
-const filterRow = document.querySelector(".filter-row");
+const filterRow = document.querySelector("[data-js-filter-row]");
 const table = filterRow?.closest("table");
 if (table) {
   const key = `widths:${new URLSearchParams(location.search).get("name")}`;

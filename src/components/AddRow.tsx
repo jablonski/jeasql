@@ -1,4 +1,3 @@
-import { hasBlobAffinity } from "../server/db.ts";
 import { insertField } from "../server/forms.ts";
 import { url } from "../server/url.ts";
 import type { Column } from "../server/db.ts";
@@ -6,16 +5,19 @@ import HiddenFields from "./HiddenFields.tsx";
 
 /**
  * Collapsible form to insert a row. Blank fields get the column default.
- * `rowidAlias`: the column SQLite fills in automatically (see TableInfo).
+ * `rowidAlias`: the column SQLite fills in automatically; `blobColumns` accept
+ * file uploads (see TableInfo).
  */
 export default function AddRow({
   name,
   cols,
   rowidAlias,
+  blobColumns,
 }: {
   name: string;
   cols: Column[];
   rowidAlias?: string;
+  blobColumns: string[];
 }) {
   return (
     <details class="panel">
@@ -32,7 +34,7 @@ export default function AddRow({
                 name={insertField.value(column.name)}
                 placeholder={defaultPlaceholder(column, rowidAlias)}
               />
-              {hasBlobAffinity(column.type) && (
+              {blobColumns.includes(column.name) && (
                 <input
                   type="file"
                   name={insertField.file(column.name)}

@@ -1,5 +1,5 @@
 // Burger button: shows/hides the side menu on narrow screens.
-const toggle = document.querySelector(".nav-toggle");
+const toggle = document.querySelector("[data-js-nav-toggle]");
 
 /** Opens or closes the menu, keeping aria-expanded in sync for screen readers. */
 function setOpen(open: boolean) {
@@ -17,7 +17,7 @@ document.addEventListener("keydown", (e) => {
 
 document.addEventListener("click", (e) => {
   const target = e.target as Element;
-  if (!target.closest("#nav, .nav-toggle")) {
+  if (!target.closest("#nav, [data-js-nav-toggle]")) {
     setOpen(false);
   }
 });

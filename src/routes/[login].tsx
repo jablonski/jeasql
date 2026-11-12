@@ -1,5 +1,6 @@
 import ErrorMessage from "../components/ErrorMessage.tsx";
 import Hero from "../components/Hero.tsx";
+import HiddenFields from "../components/HiddenFields.tsx";
 import Layout from "../components/Layout.tsx";
 import Wordmark from "../components/Wordmark.tsx";
 import {
@@ -81,7 +82,7 @@ export default function ({ request, reply }: RouteProps) {
           <Hero title="Welcome back" class="login-form" action={url("/login")}>
             <p class="login-hint">Sign in to continue.</p>
             <ErrorMessage error={error} />
-            <input type="hidden" name="next" value={next} />
+            <HiddenFields fields={{ next }} />
             <label>
               Username
               <input

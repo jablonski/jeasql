@@ -58,7 +58,7 @@ export function describeTable(name: string): TableInfo | undefined {
 }
 
 /** The declared name of a column of `info` (see findName); undefined if there is none. */
-export function findColumn(info: Pick<TableInfo, "columnNames">, name: string | undefined) {
+export function findColumn(info: TableInfo, name: string | undefined) {
   return findName(info.columnNames, name);
 }
 
@@ -69,7 +69,7 @@ function requireTableInfo(name: string) {
   return info!;
 }
 
-/** True for a table declared WITHOUT ROWID (asks SQLite instead of parsing its SQL). */
+/** True for a table declared WITHOUT ROWID (asks SQLite instead of parsing its SQL). Exported for tests. */
 export function isWithoutRowid(object: SchemaObject) {
   if (object.type !== "table") {
     return false;
@@ -137,7 +137,7 @@ export function readTablePage(
     filters,
   }: { sort?: string; dir?: SortDir; limit: number; offset: number; filters?: Filters },
 ) {
-  const sortColumn = findColumn({ columnNames }, sort);
+  const sortColumn = findName(columnNames, sort);
   const keySelect = keyColumns.map((name) => `, ${quote(name)}`).join("");
   // Only known column names and a fixed direction reach the SQL text.
   // The key columns break ties, so rows with equal sort values keep one order
@@ -232,9 +232,13 @@ function locateRow(table: string, key: RowKey) {
   };
 }
 
-/** The column named `name` (see sameSqlName); throws if there is none. */
+/** The column named `name` (see findName); throws if there is none. */
 function requireColumn(cols: Column[], name: string) {
-  const columnDef = cols.find((column) => sameSqlName(column.name, name));
+  const declared = findName(
+    cols.map((column) => column.name),
+    name,
+  );
+  const columnDef = cols.find((column) => column.name === declared);
   if (!columnDef) {
     throw new Error(`Unknown column: ${name}`);
   }

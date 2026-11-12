@@ -30,18 +30,17 @@ export function insertValues(
   files: Record<string, Uint8Array> = {},
 ) {
   const values = dict<string | Uint8Array | null>();
-  const has = (obj: object, name: string) => Object.hasOwn(obj, name);
   const columns = new Set(
     [...Object.keys(fields), ...Object.keys(files)]
       .map(insertFieldColumn)
       .filter((c) => c !== undefined),
   );
   for (const column of columns) {
-    if (has(fields, insertField.isNull(column))) {
+    if (Object.hasOwn(fields, insertField.isNull(column))) {
       values[column] = null;
-    } else if (has(fields, insertField.isEmpty(column))) {
+    } else if (Object.hasOwn(fields, insertField.isEmpty(column))) {
       values[column] = "";
-    } else if (has(files, insertField.file(column))) {
+    } else if (Object.hasOwn(files, insertField.file(column))) {
       values[column] = files[insertField.file(column)];
     } else if (fields[insertField.value(column)]) {
       values[column] = fields[insertField.value(column)];

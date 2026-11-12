@@ -1,23 +1,30 @@
 import { deleteRow, insertRow } from "../server/db.ts";
 import { errorMessage } from "../server/errors.ts";
+import { field } from "../server/fields.ts";
 import { insertValues } from "../server/forms.ts";
 import { pickHandler } from "../server/handlers.ts";
-import { redirectHome, redirectTable } from "../server/redirect.ts";
+import { redirectHome, redirectOnError, redirectTable } from "../server/redirect.ts";
 import { postOnly, readForm } from "../server/request.ts";
 import { parseKey } from "../server/rowKey.ts";
-import { field } from "../server/fields.ts";
 
-/** One handler per operation; each changes the row and returns the notice for the user. */
+/** Changes one row of `table` from the submitted form and returns the notice for the user. */
+type RowOpHandler = (
+  table: string,
+  fields: Record<string, string>,
+  files: Record<string, Uint8Array>,
+) => string;
+
+/** One handler per operation. */
 const ROW_OPS = {
-  insert: (table: string, fields: Record<string, string>, files: Record<string, Uint8Array>) => {
+  insert: (table, fields, files) => {
     const { rowid } = insertRow(table, insertValues(fields, files));
     return rowid === undefined ? "Row added." : `Row added (rowid ${rowid}).`;
   },
-  delete: (table: string, fields: Record<string, string>) => {
+  delete: (table, fields) => {
     deleteRow(table, parseKey(fields.key));
     return "Row deleted.";
   },
-};
+} satisfies Record<string, RowOpHandler>;
 
 /**
  * POST /update-row – insert (op=insert) or delete (op=delete) a row, then go back to the table.
@@ -35,10 +42,8 @@ export default postOnly(async function ({ request, reply }) {
   const table = field(fields, "table");
   const op = field(fields, "op");
 
-  try {
+  return redirectOnError(reply, table, () => {
     const notice = pickHandler(ROW_OPS, op)(table, fields, files);
     return redirectTable(reply, table, { notice });
-  } catch (e) {
-    return redirectTable(reply, table, { error: errorMessage(e) });
-  }
+  });
 });

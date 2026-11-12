@@ -88,7 +88,7 @@ export default function DataTable({
             ))}
           </tr>
           {filter && (
-            <tr class="filter-row">
+            <tr class="filter-row" data-js-filter-row>
               {editable && <th class="action" />}
               {columns.map((column) => (
                 <th>

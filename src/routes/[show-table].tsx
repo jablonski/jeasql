@@ -7,6 +7,7 @@ import ColumnList from "../components/ColumnList.tsx";
 import Relations from "../components/Relations.tsx";
 import Structure from "../components/Structure.tsx";
 import ErrorMessage from "../components/ErrorMessage.tsx";
+import HiddenFields from "../components/HiddenFields.tsx";
 import { attempt } from "../server/errors.ts";
 import {
   countRows,
@@ -17,10 +18,10 @@ import {
   quote,
   readTablePage,
 } from "../server/db.ts";
+import { field } from "../server/fields.ts";
 import { tableUrl } from "../server/links.ts";
 import { countLabel, PAGE_SIZE, pageCount, pageOffset, parsePage } from "../server/paging.ts";
 import { queryParams } from "../server/request.ts";
-import { field } from "../server/fields.ts";
 import { url } from "../server/url.ts";
 import type { Filters, SortDir } from "../server/db.ts";
 import type { RowStats } from "../components/DataTable.tsx";
@@ -62,7 +63,7 @@ export default function ({ request }: RouteProps) {
           </>
         )}
         <form method="post" action={url("/query-database")} class="inline-form">
-          <input type="hidden" name="sql" value={`SELECT * FROM ${quote(name)}`} />
+          <HiddenFields fields={{ sql: `SELECT * FROM ${quote(name)}` }} />
           <button type="submit" class="link">
             open in SQL query
           </button>
@@ -70,7 +71,7 @@ export default function ({ request }: RouteProps) {
         {isTable && " · double-click a cell to edit"}
       </div>
 
-      {isTable && <AddRow name={name} cols={cols} rowidAlias={rowidAlias} />}
+      {isTable && <AddRow name={name} cols={cols} rowidAlias={rowidAlias} blobColumns={blobColumns} />}
 
       <DataTable
         columns={columnNames}

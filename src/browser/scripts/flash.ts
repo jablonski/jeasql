@@ -1,5 +1,6 @@
 // Toasts: clean their params from the URL; hide notices after a few
 // seconds, keep errors until dismissed.
+// The param names match signFlash in server/flash.ts (not imported: it needs node:crypto).
 const toasts = document.querySelectorAll("[data-js-flash]");
 if (toasts.length) {
   const url = new URL(location.href);

@@ -2,6 +2,7 @@ import { basename, dirname } from "node:path";
 import { cx } from "../server/classes.ts";
 import { fileInfo } from "../server/files.ts";
 import { url } from "../server/url.ts";
+import HiddenFields from "./HiddenFields.tsx";
 
 /** Clickable cards, each posting its path to /open-database. */
 export default function DatabaseFiles({
@@ -22,7 +23,7 @@ export default function DatabaseFiles({
       <div class="db-cards">
         {files.map((file) => (
           <form method="post" action={url("/open-database")}>
-            <input type="hidden" name="path" value={file} />
+            <HiddenFields fields={{ path: file }} />
             <button type="submit" class={cx("db-card", file === current && "current")} title={file}>
               <strong>{basename(file)}</strong>
               <span class="db-card-dir">{dirname(file)}</span>

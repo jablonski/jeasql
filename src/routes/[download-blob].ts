@@ -1,9 +1,9 @@
 import { describeTable, findColumn, readBlob } from "../server/db.ts";
 import { attempt } from "../server/errors.ts";
+import { field } from "../server/fields.ts";
 import { guessType } from "../server/guessType.ts";
 import { errorResponse, queryParams } from "../server/request.ts";
 import { keyLabel, parseKey } from "../server/rowKey.ts";
-import { field } from "../server/fields.ts";
 import type { RouteProps } from "../types.d.ts";
 
 /** GET /download-blob?table=…&column=…&key={json} – downloads one BLOB cell. */

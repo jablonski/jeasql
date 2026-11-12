@@ -11,6 +11,7 @@ export default function Header({ file, route }: { file: string; route: string })
       <button
         type="button"
         class="nav-toggle"
+        data-js-nav-toggle
         aria-label="Menu"
         aria-controls="nav"
         aria-expanded="false"

@@ -1,7 +1,8 @@
+// Reading requests (query, form, JSON, multipart) and answering errors.
 import type { FastifyReply, FastifyRequest } from "fastify";
 import type { RouteProps, ThisContext } from "../types.d.ts";
 import { dict } from "./dict.ts";
-import { errorMessage } from "./errors.ts";
+import { attempt } from "./errors.ts";
 
 // Route convention: a page with a form handles both methods in one route (GET shows
 // it, POST handles it and re-renders it with the error, see handlePost: create-table,
@@ -62,11 +63,8 @@ export function handlePost<T>(
   if (!isPost(request)) {
     return { error: "" };
   }
-  try {
-    return { response: action(), error: "" };
-  } catch (e) {
-    return { error: errorMessage(e) };
-  }
+  const { value: response, error } = attempt<T | undefined>(action, undefined);
+  return { response, error };
 }
 
 /**

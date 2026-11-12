@@ -13,7 +13,7 @@ function setup(dialog: HTMLDialogElement) {
   const title = dialog.querySelector<HTMLHeadingElement>("h2")!;
   const message = dialog.querySelector<HTMLParagraphElement>("p")!;
   const ok = dialog.querySelector<HTMLButtonElement>('[value="ok"]')!;
-  const cancel = dialog.querySelector<HTMLButtonElement>(".secondary")!;
+  const cancel = dialog.querySelector<HTMLButtonElement>('[value="cancel"]')!;
 
   let pending: HTMLFormElement | null = null;
 
