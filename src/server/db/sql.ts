@@ -1,6 +1,8 @@
 // Running SQL and parsing it into statements.
 import { db, holdCursor } from "./connection.ts";
-import type { Row } from "./rows.ts";
+
+/** One row of a table or query result, values in column order. */
+export type Row = unknown[];
 
 /** Finds a CREATE TRIGGER in SQL with strings and comments blanked out (see parseSql). */
 const CREATE_TRIGGER = /\bCREATE\s+(TEMP\s+|TEMPORARY\s+)?TRIGGER\b/i;

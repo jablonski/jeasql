@@ -6,6 +6,7 @@ import { filterClause } from "./filter.ts";
 import type { Filters } from "./filter.ts";
 import { keyValue } from "../rowKey.ts";
 import type { RowKey } from "../rowKey.ts";
+import type { Row } from "./sql.ts";
 import type { SQLInputValue } from "node:sqlite";
 import type { Column, SchemaObject } from "./schema.ts";
 
@@ -13,9 +14,6 @@ export type { RowKey };
 
 /** Sort direction of a table page. */
 export type SortDir = "asc" | "desc";
-
-/** One row of a table or query result, values in column order. */
-export type Row = unknown[];
 
 /** A table or view with everything the pages and row functions need to know about it. */
 export type TableInfo = {
