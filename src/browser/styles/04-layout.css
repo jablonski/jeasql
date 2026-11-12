@@ -36,6 +36,11 @@ body.nav-open .nav-toggle {
   background: var(--surface);
 }
 
+/* keep items at full height so a long table list scrolls instead of squashing */
+#nav > * {
+  flex-shrink: 0;
+}
+
 #nav h6 {
   margin: 1.1rem 0.6rem 0.35rem;
   color: var(--muted);
