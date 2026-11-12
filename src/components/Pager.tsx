@@ -1,4 +1,5 @@
 import HiddenFields from "./HiddenFields.tsx";
+import type { RowStats } from "./DataTable.tsx";
 
 /** Where page links lead: a URL per page, or a POST form re-sending `fields` with `page`. */
 export type PageTarget =
@@ -6,22 +7,21 @@ export type PageTarget =
   | { action: string; fields: Record<string, string> };
 
 /**
- * Page links. With `pages` the total is known (and "Last" is offered);
- * otherwise `more` tells whether a next page exists. It may be a function, read
- * when the pager renders: after a streamed table above it has counted its rows.
+ * Page links. With `pages` the total is known (and "Last" is offered); otherwise
+ * a next page exists if the table above (rendered first) was `stats.truncated`.
  */
 export default function Pager({
   page,
   pages,
-  more = false,
+  stats,
   target,
 }: {
   page: number;
   pages?: number;
-  more?: boolean | (() => boolean);
+  stats?: RowStats;
   target: PageTarget;
 }) {
-  const hasNext = pages === undefined ? (typeof more === "function" ? more() : more) : page < pages;
+  const hasNext = pages === undefined ? Boolean(stats?.truncated) : page < pages;
   if (page <= 1 && !hasNext) {
     return null;
   }

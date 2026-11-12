@@ -1,6 +1,7 @@
 import { deleteRow, insertRow } from "../server/db.ts";
 import { errorMessage } from "../server/errors.ts";
 import { insertValues } from "../server/forms.ts";
+import { pickHandler } from "../server/handlers.ts";
 import { redirectHome, redirectTable } from "../server/redirect.ts";
 import { postOnly, readForm } from "../server/request.ts";
 import { parseKey } from "../server/rowKey.ts";
@@ -17,11 +18,6 @@ const ROW_OPS = {
     return "Row deleted.";
   },
 };
-
-/** The row operations /update-row knows (see ROW_OPS). */
-type RowOp = keyof typeof ROW_OPS;
-
-const isRowOp = (op: string): op is RowOp => Object.hasOwn(ROW_OPS, op);
 
 /**
  * POST /update-row – insert (op=insert) or delete (op=delete) a row, then go back to the table.
@@ -40,10 +36,7 @@ export default postOnly(async function ({ request, reply }) {
   const op = field(fields, "op");
 
   try {
-    if (!isRowOp(op)) {
-      throw new Error(`Unknown operation: ${op}`);
-    }
-    const notice = ROW_OPS[op](table, fields, files);
+    const notice = pickHandler(ROW_OPS, op)(table, fields, files);
     return redirectTable(reply, table, { notice });
   } catch (e) {
     return redirectTable(reply, table, { error: errorMessage(e) });

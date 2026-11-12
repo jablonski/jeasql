@@ -2,6 +2,7 @@ import { basename } from "node:path";
 import { cx } from "../server/classes.ts";
 import { url } from "../server/url.ts";
 import Icon from "./Icon.tsx";
+import Wordmark from "./Wordmark.tsx";
 
 /** Top bar: menu button, brand, database switcher and logout. */
 export default function Header({ file, route }: { file: string; route: string }) {
@@ -39,10 +40,7 @@ export default function Header({ file, route }: { file: string; route: string })
 function Brand() {
   return (
     <a href={url("/")} class="brand">
-      <img src={url("/favicon.svg")} alt="" class="brand-logo" />
-      <span>
-        Jeas<span class="brand-accent">QL</span>
-      </span>
+      <Wordmark logoClass="brand-logo" />
     </a>
   );
 }

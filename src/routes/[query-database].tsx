@@ -72,7 +72,7 @@ export default function ({ request }: RouteProps) {
             {pageable && (
               <Pager
                 page={page}
-                more={() => Boolean(stats.truncated)}
+                stats={stats}
                 target={{ action: url("/query-database"), fields: { sql } }}
               />
             )}

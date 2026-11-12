@@ -12,7 +12,7 @@ import { errorMessage } from "./errors.ts";
 export function postOnly<T>(handler: (this: ThisContext, props: RouteProps) => T) {
   // `this` is the Jeasx request context, passed on to the handler.
   return function (this: ThisContext, props: RouteProps) {
-    if (props.request.method !== "POST") {
+    if (!isPost(props.request)) {
       return errorResponse(props, 405, "Method not allowed");
     }
     return handler.call(this, props);

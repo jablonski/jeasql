@@ -144,10 +144,14 @@ export function readTablePage(
       statement.iterate({ ...params, ...pageParams({ limit, offset }) }) as Iterable<unknown>,
     ) as Iterable<Row>,
     rowKey: keyColumns.length
-      ? (row: Row): RowKey =>
-          Object.fromEntries(keyColumns.map((k, i) => [k, row[visibleCount + i]]))
+      ? (row: Row) => toRowKey(keyColumns, row.slice(visibleCount))
       : undefined,
   };
+}
+
+/** Pairs key columns with their values (in the same order) into a row key. */
+function toRowKey(keyColumns: string[], values: unknown[]): RowKey {
+  return Object.fromEntries(keyColumns.map((name, i) => [name, values[i]]));
 }
 
 /**
@@ -178,7 +182,7 @@ export function updateCell(
   return {
     column,
     value: stored ?? null,
-    key: Object.fromEntries(keyColumns.map((name, i) => [name, keyValues[i]])),
+    key: toRowKey(keyColumns, keyValues),
   };
 }
 
@@ -214,10 +218,9 @@ function locateRow(table: string, key: RowKey) {
   };
 }
 
-/** The column named `name` (see findName); throws if there is none. */
+/** The column named `name` (see sameSqlName); throws if there is none. */
 function requireColumn(cols: Column[], name: string) {
-  const declared = findName(cols.map((column) => column.name), name);
-  const columnDef = cols.find((column) => column.name === declared);
+  const columnDef = cols.find((column) => sameSqlName(column.name, name));
   if (!columnDef) {
     throw new Error(`Unknown column: ${name}`);
   }

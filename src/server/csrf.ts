@@ -1,12 +1,15 @@
 // Protection against cross-site request forgery (CSRF).
 import type { IncomingHttpHeaders } from "node:http";
 
+/** The parts of a request the checks read (a FastifyRequest has them all). */
+type CsrfRequest = { method: string; headers: IncomingHttpHeaders; host?: string };
+
 /**
  * True if the request was triggered by another site (CSRF). Uses Sec-Fetch-Site
  * where the browser sends it, else compares the Origin header with the Host
  * (`request.host`, which follows X-Forwarded-Host when TRUST_PROXY is set).
  */
-export function isCrossSite(request: { headers: IncomingHttpHeaders; host?: string }): boolean {
+export function isCrossSite(request: Omit<CsrfRequest, "method">): boolean {
   const site = request.headers["sec-fetch-site"];
   // "none" means the user typed the URL or used a bookmark.
   if (site) {
@@ -30,10 +33,6 @@ export function isCrossSite(request: { headers: IncomingHttpHeaders; host?: stri
  * but GET, since every change (and every SQL query) is a POST.
  * Plain cross-site links to pages stay allowed.
  */
-export function blockCrossSite(request: {
-  method: string;
-  headers: IncomingHttpHeaders;
-  host?: string;
-}): boolean {
+export function blockCrossSite(request: CsrfRequest): boolean {
   return request.method !== "GET" && isCrossSite(request);
 }

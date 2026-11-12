@@ -5,6 +5,7 @@ import { filterClause } from "./filter.ts";
 import type { Filters } from "./filter.ts";
 import { requireText, trimmed } from "../fields.ts";
 import { dict } from "../dict.ts";
+import { pickHandler } from "../handlers.ts";
 
 /** A table or view. */
 export type SchemaObject = { name: string; type: string; sql: string };
@@ -246,17 +247,12 @@ const TABLE_CHANGES = {
 /** The structural changes alterTable knows (see TABLE_CHANGES). */
 export type TableOp = keyof typeof TABLE_CHANGES;
 
-const isTableOp = (op: string): op is TableOp => Object.hasOwn(TABLE_CHANGES, op);
-
 /**
  * Structural changes on a table (see TABLE_CHANGES). Returns a message for the
  * user and the table to show next (its new name after a rename, undefined after a drop).
  */
 export function alterTable(table: string, change: TableChange): ChangeResult {
-  if (!isTableOp(change.op)) {
-    throw new Error(`Unknown operation: ${change.op}`);
-  }
-  const handler: TableChangeHandler = TABLE_CHANGES[change.op];
+  const handler: TableChangeHandler = pickHandler(TABLE_CHANGES, change.op);
   const object = findObject(table);
   assertTable(object, table);
   // The declared name, not the user's spelling (names match case-insensitively).

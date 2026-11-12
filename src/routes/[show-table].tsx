@@ -94,7 +94,7 @@ export default function ({ request }: RouteProps) {
       <Pager
         page={page}
         pages={pages}
-        more={() => Boolean(stats.truncated)}
+        stats={stats}
         target={{ href: pageHref }}
       />
 

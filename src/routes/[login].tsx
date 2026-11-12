@@ -1,6 +1,7 @@
 import ErrorMessage from "../components/ErrorMessage.tsx";
 import Hero from "../components/Hero.tsx";
 import Layout from "../components/Layout.tsx";
+import Wordmark from "../components/Wordmark.tsx";
 import {
   authConfigured,
   checkCredentials,
@@ -63,10 +64,7 @@ export default function ({ request, reply }: RouteProps) {
           <section class="login-intro">
             <span class="login-badge">Powered by Jeasx</span>
             <h2 class="login-brand">
-              <img src={url("/favicon.svg")} alt="" class="login-logo" />
-              <span>
-                Jeas<span class="brand-accent">QL</span>
-              </span>
+              <Wordmark logoClass="login-logo" />
             </h2>
             <p class="login-tagline">Browse and edit SQLite databases, right in your browser.</p>
             <p class="login-about">
