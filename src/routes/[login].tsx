@@ -78,6 +78,9 @@ export default function ({ request, reply }: RouteProps) {
               <li>SQL editor with autocompletion</li>
               <li>Server-rendered JSX on Node's built-in node:sqlite</li>
             </ul>
+            <a class="login-source" href="https://github.com/jablonski/jeasql">
+              View source on GitHub →
+            </a>
           </section>
           <Hero title="Welcome back" class="login-form" action={url("/login")}>
             <p class="login-hint">Sign in to continue.</p>

@@ -122,6 +122,12 @@
   background: linear-gradient(120deg, var(--accent), #06b6d4);
 }
 
+.login-source {
+  align-self: flex-start;
+  font-size: 0.9rem;
+  font-weight: 600;
+}
+
 .login-form {
   width: 100%;
   max-width: 22rem;
