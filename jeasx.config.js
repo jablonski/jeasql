@@ -1,3 +1,5 @@
+import querystring from "node:querystring";
+
 const NODE_ENV_IS_DEVELOPMENT = process.env.NODE_ENV === "development";
 
 /** Sent with every response (a route may set its own value instead). */
@@ -65,10 +67,7 @@ export default {
       .addContentTypeParser(
         "application/x-www-form-urlencoded",
         { parseAs: "string" },
-        // Plain strings only: a repeated field keeps its last value instead of becoming an array.
-        // No prototype, so field names like "constructor" never match inherited properties.
-        async (_request, body) =>
-          Object.assign(Object.create(null), Object.fromEntries(new URLSearchParams(String(body)))),
+        async (_request, body) => querystring.parse(body),
       ),
 
   /** @type {() => import("fastify").FastifyServerOptions} */
