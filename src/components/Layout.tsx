@@ -43,6 +43,7 @@ export default function Layout(
           <meta charset="utf-8" />
           <meta name="description" content={description} />
           <meta name="viewport" content="width=device-width, initial-scale=1" />
+          <meta name="format-detection" content="telephone=no" />
           <link rel="icon" href={url("/favicon.svg")} type="image/svg+xml" />
           <link rel="stylesheet" href={url("/index.css", { v: process.env.BUILD_ID })} />
           <script type="module" src={url("/index.js", { v: process.env.BUILD_ID })} />
