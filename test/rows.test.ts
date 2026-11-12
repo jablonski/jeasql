@@ -251,6 +251,20 @@ describe("describeTable", () => {
     assert.equal(info.withoutRowid, true);
     assert.equal(describeTable("nope"), undefined);
   });
+
+  test("names the rowid alias only for a single INTEGER PRIMARY KEY in a rowid table", () => {
+    db().exec(`
+      CREATE TABLE alias_ipk (id integer PRIMARY KEY, v);
+      CREATE TABLE alias_textpk (id TEXT PRIMARY KEY);
+      CREATE TABLE alias_twopk (a INTEGER, b INTEGER, PRIMARY KEY (a, b));
+      CREATE TABLE alias_norowid (id INTEGER PRIMARY KEY) WITHOUT ROWID;
+    `);
+    assert.equal(describeTable("alias_ipk")!.rowidAlias, "id");
+    assert.equal(describeTable("alias_textpk")!.rowidAlias, undefined);
+    assert.equal(describeTable("alias_twopk")!.rowidAlias, undefined);
+    assert.equal(describeTable("alias_norowid")!.rowidAlias, undefined);
+    assert.equal(describeTable("plain")!.rowidAlias, undefined);
+  });
 });
 
 describe("holdCursor", () => {

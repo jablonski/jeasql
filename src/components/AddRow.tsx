@@ -6,16 +6,16 @@ import HiddenFields from "./HiddenFields.tsx";
 
 /**
  * Collapsible form to insert a row. Blank fields get the column default.
- * `withoutRowid`: a WITHOUT ROWID table, where no key is assigned automatically.
+ * `rowidAlias`: the column SQLite fills in automatically (see TableInfo).
  */
 export default function AddRow({
   name,
   cols,
-  withoutRowid = false,
+  rowidAlias,
 }: {
   name: string;
   cols: Column[];
-  withoutRowid?: boolean;
+  rowidAlias?: string;
 }) {
   return (
     <details class="panel">
@@ -30,7 +30,7 @@ export default function AddRow({
               </span>
               <input
                 name={insertField.value(column.name)}
-                placeholder={defaultPlaceholder(column, cols, withoutRowid)}
+                placeholder={defaultPlaceholder(column, rowidAlias)}
               />
               {hasBlobAffinity(column.type) && (
                 <input
@@ -64,16 +64,9 @@ function columnFlags(column: Column) {
 }
 
 /** What a blank field inserts: the declared default, an auto rowid, or SQLite's default. */
-function defaultPlaceholder(column: Column, cols: Column[], withoutRowid: boolean) {
+function defaultPlaceholder(column: Column, rowidAlias: string | undefined) {
   if (column.dflt_value != null) {
     return `default ${column.dflt_value}`;
   }
-  // A single-column INTEGER PRIMARY KEY is the rowid, which SQLite assigns automatically
-  // (not in WITHOUT ROWID tables, which have no rowid, nor in composite keys).
-  const rowidAlias =
-    !withoutRowid &&
-    column.pk &&
-    column.type.toUpperCase() === "INTEGER" &&
-    cols.filter((c) => c.pk).length === 1;
-  return rowidAlias ? "auto" : "default";
+  return column.name === rowidAlias ? "auto" : "default";
 }

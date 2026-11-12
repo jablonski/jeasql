@@ -32,6 +32,8 @@ export type TableInfo = {
   /** Columns identifying a row (see keyColumnsOf); empty for views. */
   keyColumns: string[];
   withoutRowid: boolean;
+  /** The INTEGER PRIMARY KEY column that is an alias for the rowid, if any (see rowidAliasOf). */
+  rowidAlias?: string;
   /** Columns with BLOB affinity, which accept file uploads. */
   blobColumns: string[];
 };
@@ -50,6 +52,7 @@ export function describeTable(name: string): TableInfo | undefined {
     columnNames: cols.map((column) => column.name),
     keyColumns: keyColumnsOf(object, cols, withoutRowid),
     withoutRowid,
+    rowidAlias: rowidAliasOf(cols, withoutRowid),
     blobColumns: cols.filter((column) => hasBlobAffinity(column.type)).map((column) => column.name),
   };
 }
@@ -75,6 +78,17 @@ export function isWithoutRowid(object: SchemaObject) {
     .prepare(`PRAGMA table_list(${quote(object.name)})`)
     .get();
   return Boolean(info?.wr);
+}
+
+/**
+ * The column SQLite fills in automatically: a single-column INTEGER PRIMARY KEY is
+ * the rowid (not in WITHOUT ROWID tables, which have no rowid, nor in composite keys).
+ */
+function rowidAliasOf(cols: Column[], withoutRowid: boolean) {
+  const keys = cols.filter((column) => column.pk);
+  return !withoutRowid && keys.length === 1 && keys[0].type.toUpperCase() === "INTEGER"
+    ? keys[0].name
+    : undefined;
 }
 
 /** SQLite's names for the built-in rowid; a real column of that name hides it. */

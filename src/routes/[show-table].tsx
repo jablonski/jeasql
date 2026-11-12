@@ -43,7 +43,7 @@ export default function ({ request }: RouteProps) {
     return; // falls through to [404].tsx
   }
   const { info, sort, dir, filters, total, pages, page, rows, rowKey } = loaded;
-  const { object, cols, columnNames, withoutRowid, blobColumns } = info;
+  const { object, cols, columnNames, rowidAlias, blobColumns } = info;
   const { name, type, sql } = object;
   const isTable = type === "table";
   const stats: RowStats = { count: 0 };
@@ -70,7 +70,7 @@ export default function ({ request }: RouteProps) {
         {isTable && " · double-click a cell to edit"}
       </div>
 
-      {isTable && <AddRow name={name} cols={cols} withoutRowid={withoutRowid} />}
+      {isTable && <AddRow name={name} cols={cols} rowidAlias={rowidAlias} />}
 
       <DataTable
         columns={columnNames}

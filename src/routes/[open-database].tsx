@@ -21,6 +21,7 @@ export default function ({ request, reply }: RouteProps) {
     return response;
   }
 
+  const current = dbPath();
   const found = findDatabaseFiles();
 
   return (
@@ -31,16 +32,16 @@ export default function ({ request, reply }: RouteProps) {
     >
       <div class="open-page">
         <Hero title="Open a database" icon="database">
-          {dbPath() ? (
+          {current ? (
             <form
               method="post"
               action={url("/close-database")}
               class="open-current"
-              title={dbPath()}
+              title={current}
             >
               <div class="open-current-path">
                 <span class="open-current-label">Currently open</span>
-                <span class="open-current-file">{dbPath()}</span>
+                <span class="open-current-file">{current}</span>
               </div>
               <button type="submit" class="secondary">
                 Close
@@ -76,7 +77,7 @@ export default function ({ request, reply }: RouteProps) {
             </div>
           </form>
         </Hero>
-        <DatabaseFiles title="In the working directory" files={found} current={dbPath()} />
+        <DatabaseFiles title="In the working directory" files={found} current={current} />
       </div>
     </Layout>
   );

@@ -2,9 +2,10 @@
 // The SQL is kept per tab, so it survives switching to other pages.
 import { load, save } from "./storage.ts";
 
+const KEY = "sql";
+
 document.querySelectorAll("textarea[data-js-sql]").forEach((el) => {
   if (el instanceof HTMLTextAreaElement) {
-    const KEY = "sql";
     if (el.value.trim()) {
       save(KEY, el.value);
     } else {
