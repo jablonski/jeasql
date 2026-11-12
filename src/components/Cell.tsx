@@ -26,20 +26,21 @@ export default function Cell({
   rowKey?: Record<string, unknown>;
 }) {
   const editable = Boolean(table && column && rowKey);
-  const blob = value instanceof Uint8Array;
-  const isNull = value === null || value === undefined;
+  const kind = kindOf(value);
+  const blob = kind === "blob";
+  const isNull = kind === "null";
   const text = blob || isNull ? "" : String(value);
   const hint = editable ? (blob ? "Double-click to replace" : "Double-click to edit") : undefined;
   const blobHref = editable && blob ? blobUrl(table!, column!, rowKey!) : undefined;
   return (
     <td
-      class={cellClass(value)}
+      class={CELL_CLASS[kind]}
       data-column={editable ? column : undefined}
       data-value={editable && !isNull && !blob ? editText(value, text) : undefined}
       data-blob={editable && blob ? "true" : undefined}
       title={cellTooltip(text, hint)}
     >
-      {cellContent(value, text, blobHref)}
+      {cellContent(kind, value, text, blobHref)}
     </td>
   );
 }
@@ -48,12 +49,33 @@ export default function Cell({
 const shorten = (text: string, max: number) =>
   text.length > max ? `${text.slice(0, max)}…` : text;
 
+/** What kind of value a cell holds; decides how it is shown and styled. */
+type Kind = "null" | "blob" | "num" | "text";
+
+function kindOf(value: unknown): Kind {
+  if (value === null || value === undefined) {
+    return "null";
+  }
+  if (value instanceof Uint8Array) {
+    return "blob";
+  }
+  return typeof value === "number" || typeof value === "bigint" ? "num" : "text";
+}
+
+/** "muted" for NULL and BLOB (shown greyed out), "num" for numbers. */
+const CELL_CLASS: Record<Kind, string | undefined> = {
+  null: "muted",
+  blob: "muted",
+  num: "num",
+  text: undefined,
+};
+
 /**
  * What the cell shows: "NULL", a BLOB's size (a download link with `blobHref`;
  * in tables a double-click replaces it), or the text cut to MAX_CELL_TEXT.
  */
-function cellContent(value: unknown, text: string, blobHref: string | undefined) {
-  if (value === null || value === undefined) {
+function cellContent(kind: Kind, value: unknown, text: string, blobHref: string | undefined) {
+  if (kind === "null") {
     return "NULL";
   }
   if (value instanceof Uint8Array) {
@@ -76,14 +98,6 @@ function cellTooltip(text: string, hint: string | undefined) {
   }
   const tip = shorten(text, MAX_TITLE_TEXT);
   return hint ? `${tip}\n\n${hint}` : tip;
-}
-
-/** "muted" for NULL and BLOB (shown greyed out), "num" for numbers. */
-function cellClass(value: unknown) {
-  if (value === null || value === undefined || value instanceof Uint8Array) {
-    return "muted";
-  }
-  return typeof value === "number" || typeof value === "bigint" ? "num" : undefined;
 }
 
 /**
