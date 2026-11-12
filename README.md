@@ -59,6 +59,10 @@ npm run build
 AUTH_USERNAME=admin AUTH_PASSWORD=secret npm start
 ```
 
+### Sample database
+
+Need some data to try it out? Use the [Northwind sample database](https://github.com/jpwhite3/northwind-SQLite3) (a trading company with orders, products, customers and employees). Download [`northwind.db`](https://github.com/jpwhite3/northwind-SQLite3/raw/main/dist/northwind.db) and open it in JeasQL.
+
 ## Configuration
 
 Set these as environment variables, or put them in a `.env.local` file (ignored by git).
