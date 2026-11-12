@@ -29,10 +29,14 @@ td + td {
   border-left: 1px solid color-mix(in srgb, var(--border) 60%, transparent);
 }
 
-th {
+/* The whole head sticks, so a filter row stays below the headers. */
+thead {
   position: sticky;
   top: 0;
   z-index: 1;
+}
+
+th {
   background: var(--surface-2);
   color: var(--text-2);
   font-size: 12px;
@@ -83,4 +87,36 @@ td.empty {
   padding: 2rem;
   color: var(--muted);
   text-align: center;
+}
+
+/* ---------- filter row ---------- */
+/* Holds only hidden fields and a submit button for Enter, rendered but not shown
+   (Safari skips implicit submission when that button is display: none). */
+.filter-form button {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+}
+
+.filter-row th {
+  padding: 0.3rem 0.4rem;
+}
+
+.filter-row input:not([type="checkbox"]) {
+  width: 100%;
+  min-width: 6rem;
+  padding: 0.2rem 0.45rem;
+  font: 12px var(--mono);
+}
+
+/* Column widths kept from the unfiltered table (see table-filter.ts). */
+table.fixed-widths {
+  table-layout: fixed;
+}
+
+table.fixed-widths td {
+  overflow: hidden;
+  text-overflow: ellipsis;
 }

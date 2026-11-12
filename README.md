@@ -8,6 +8,7 @@ JeasQL is a showcase for Jeasx, demonstrating how it powers a real-world web app
 
 - Open any SQLite file by path, or create a new one; files in the working directory are listed for quick access
 - Browse tables and views, follow foreign keys, download BLOBs
+- Filter rows by column: `text` contains, `!text` doesn't contain, `=`, `!=`, `<`, `<=`, `>`, `>=` compare, `NULL` / `!NULL`
 - Edit cells inline, insert and delete rows
 - Create, rename and drop tables; add, rename and drop columns
 - Run SQL queries in an editor with autocompletion
@@ -27,7 +28,7 @@ JeasQL is a showcase for Jeasx, demonstrating how it powers a real-world web app
 
 ![New table](docs/screenshots/create-table.png)
 
-**Browse tables:** paged rows, sorting, inline editing
+**Browse tables:** paged rows, sorting, filtering by column, inline editing
 
 ![Table view](docs/screenshots/show-table.png)
 

@@ -1,6 +1,8 @@
 // Tables, views and their structure.
 import { db } from "./connection.ts";
 import { quote, SQL_NUMBER } from "./sql.ts";
+import { filterClause } from "./filter.ts";
+import type { Filters } from "./filter.ts";
 import { requireText, trimmed } from "../fields.ts";
 
 /** A table or view. */
@@ -90,11 +92,14 @@ export function foreignKeys(table: string) {
  * With `limit`, counting stops after limit + 1 rows, so a result above `limit`
  * only means "more than that" (cheap enough for many big tables at once).
  */
-export function tryCount(table: string, limit?: number) {
+export function tryCount(table: string, limit?: number, filters?: Filters) {
+  const { where, params } = filterClause(filters);
   const from =
-    limit === undefined ? quote(table) : `(SELECT 1 FROM ${quote(table)} LIMIT ${limit + 1})`;
+    limit === undefined
+      ? `${quote(table)}${where}`
+      : `(SELECT 1 FROM ${quote(table)}${where} LIMIT ${limit + 1})`;
   try {
-    const row = db().prepare(`SELECT count(*) AS n FROM ${from}`).get();
+    const row = db().prepare(`SELECT count(*) AS n FROM ${from}`).get(params);
     return Number(row?.n ?? 0);
   } catch {
     return undefined;
@@ -113,9 +118,9 @@ export type RowCount = { count: number | undefined; capped: boolean };
  */
 export const OVERVIEW_COUNT_LIMIT = 10_000;
 
-/** Row count up to `limit` (default COUNT_LIMIT); see RowCount. */
-export function countRows(table: string, limit = COUNT_LIMIT): RowCount {
-  const count = tryCount(table, limit);
+/** Row count up to `limit` (default COUNT_LIMIT), of rows matching `filters`; see RowCount. */
+export function countRows(table: string, limit = COUNT_LIMIT, filters?: Filters): RowCount {
+  const count = tryCount(table, limit, filters);
   return count !== undefined && count > limit
     ? { count: limit, capped: true }
     : { count, capped: false };

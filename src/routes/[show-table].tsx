@@ -12,6 +12,7 @@ import {
   describeTable,
   findColumn,
   findObject,
+  parseFilters,
   quote,
   readTablePage,
 } from "../server/db.ts";
@@ -20,12 +21,12 @@ import { countLabel, PAGE_SIZE, pageCount, pageOffset, parsePage } from "../serv
 import { queryParams } from "../server/request.ts";
 import { field } from "../server/fields.ts";
 import { url } from "../server/url.ts";
-import type { SortDir } from "../server/db.ts";
+import type { Filters, SortDir } from "../server/db.ts";
 import type { RowStats } from "../components/DataTable.tsx";
 import type { RouteProps } from "../types.d.ts";
 
 /**
- * GET /show-table?name=…&sort=…&dir=…&page=… – one page of a table or view, plus
+ * GET /show-table?name=…&sort=…&dir=…&page=…&f.<column>=… – one page of a table or view, plus
  * forms to insert rows (tables only), its columns, relations, structure and definition.
  */
 export default function ({ request }: RouteProps) {
@@ -40,19 +41,25 @@ export default function ({ request }: RouteProps) {
   if (!loaded) {
     return; // falls through to [404].tsx
   }
-  const { info, sort, dir, total, pages, page, rows, rowKey } = loaded;
+  const { info, sort, dir, filters, total, pages, page, rows, rowKey } = loaded;
   const { object, cols, columnNames, withoutRowid, blobColumns } = info;
   const { name, type, sql } = object;
   const isTable = type === "table";
   const stats: RowStats = { count: 0 };
-  const pageHref = (p: number) => tableUrl(name, { sort, dir, page: p });
+  const filtered = Object.keys(filters).length > 0;
+  const pageHref = (p: number) => tableUrl(name, { sort, dir, filters, page: p });
 
   return (
     <Layout title={name} description={`${type} ${name}`} table={name}>
       <h1>{name}</h1>
       {/* A div, not a p: a <form> inside a <p> makes the parser close the p early. */}
       <div class="lead">
-        {type} · {countLabel(total)} rows ·{" "}
+        {type} · {countLabel(total)}{filtered ? " matching" : ""} rows ·{" "}
+        {filtered && (
+          <>
+            <a href={tableUrl(name, { sort, dir })}>clear filters</a> ·{" "}
+          </>
+        )}
         <form method="post" action={url("/query-database")} class="inline-form">
           <input type="hidden" name="sql" value={`SELECT * FROM ${quote(name)}`} />
           <button type="submit" class="link">
@@ -74,7 +81,14 @@ export default function ({ request }: RouteProps) {
         blobColumns={blobColumns}
         stats={stats}
         limit={PAGE_SIZE}
-        sortHref={(column) => tableUrl(name, { sort: column, dir: toggledDir(sort, dir, column) })}
+        sortHref={(column) =>
+          tableUrl(name, { sort: column, dir: toggledDir(sort, dir, column), filters })
+        }
+        filter={{
+          action: url("/show-table"),
+          fields: { name, ...(sort ? { sort, dir } : {}) },
+          values: filters,
+        }}
       />
       <Pager
         page={page}
@@ -103,7 +117,7 @@ function toggledDir(sort: string | undefined, dir: SortDir, column: string): Sor
 }
 
 /**
- * The table or view `name` with the requested sort and page, its row count and a lazy
+ * The table or view `name` with the requested sort, filters and page, its row count and a lazy
  * cursor over that page; undefined if there is no such object.
  */
 function loadTable(name: string, query: Record<string, string>) {
@@ -113,9 +127,10 @@ function loadTable(name: string, query: Record<string, string>) {
   }
   const sort = findColumn(info, query.sort);
   const dir: SortDir = query.dir === "desc" ? "desc" : "asc";
+  const filters: Filters = parseFilters(info.columnNames, query);
   // Counting is capped (see countRows): beyond that the number of pages is unknown,
   // and the pager offers "Next" as long as the table read one row past the page.
-  const total = countRows(info.object.name);
+  const total = countRows(info.object.name, undefined, filters);
   const pages = pageCount(total);
   const page = parsePage(query.page, pages);
   // Read lazily while the page streams; one row past the page tells whether there is a next one.
@@ -124,8 +139,9 @@ function loadTable(name: string, query: Record<string, string>) {
     dir,
     limit: PAGE_SIZE + 1,
     offset: pageOffset(page),
+    filters,
   });
-  return { info, sort, dir, total, pages, page, rows, rowKey };
+  return { info, sort, dir, filters, total, pages, page, rows, rowKey };
 }
 
 /** A table or view that can't be read (e.g. a view on a dropped table): the error and its definition. */

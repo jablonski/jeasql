@@ -13,6 +13,8 @@ import {
   describeTable,
   readTablePage,
   updateCell,
+  countRows,
+  parseFilters,
 } from "../src/server/db.ts";
 import { keyJson } from "../src/server/rowKey.ts";
 import { tempDatabase } from "./helpers.ts";
@@ -279,5 +281,41 @@ describe("holdCursor", () => {
     if (globalThis.gc) {
       assert.equal(old.isOpen, false);
     }
+  });
+});
+
+describe("filters", () => {
+  db().exec(`
+    CREATE TABLE people (name TEXT, age INTEGER);
+    INSERT INTO people VALUES ('Ann', 30), ('Bob', 42), ('anna_b', NULL), ('100%', 7);
+  `);
+  const names = (filters: Record<string, string>) =>
+    [...readTablePage(describeTable("people")!, { limit: 10, offset: 0, filters }).rows].map(
+      (row) => row[0],
+    );
+
+  test("matches text case-insensitively, wildcards literally", () => {
+    assert.deepEqual(names({ name: "ann" }), ["Ann", "anna_b"]);
+    assert.deepEqual(names({ name: "a_" }), ["anna_b"]);
+    assert.deepEqual(names({ name: "%" }), ["100%"]);
+  });
+  test("negates text, keeping NULLs", () => {
+    assert.deepEqual(names({ name: "!ann" }), ["Bob", "100%"]);
+    assert.deepEqual(names({ age: "!3" }), ["Bob", "anna_b", "100%"]);
+  });
+  test("compares numbers and NULL", () => {
+    assert.deepEqual(names({ age: ">=30" }), ["Ann", "Bob"]);
+    assert.deepEqual(names({ age: "<>42" }), ["Ann", "100%"]);
+    assert.deepEqual(names({ age: "NULL" }), ["anna_b"]);
+    assert.deepEqual(names({ age: "!null", name: "=Bob" }), ["Bob"]);
+  });
+  test("counts only matching rows", () => {
+    assert.deepEqual(countRows("people", undefined, { age: ">10" }), { count: 2, capped: false });
+  });
+  test("parseFilters keeps known columns with their declared names", () => {
+    assert.deepEqual(
+      parseFilters(["name", "age"], { "f.AGE": ">1", "f.x": "1", "f.name": " ", sort: "a" }),
+      { age: ">1" },
+    );
   });
 });

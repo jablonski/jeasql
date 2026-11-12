@@ -1,9 +1,16 @@
 import { setImmediate as nextTick } from "node:timers/promises";
 import { keyJson } from "../server/rowKey.ts";
-import type { Row, RowKey, SortDir } from "../server/db.ts";
+import { FILTER_PARAM } from "../server/db/filter.ts";
+import type { Filters, Row, RowKey, SortDir } from "../server/db.ts";
 import { url } from "../server/url.ts";
 import Cell from "./Cell.tsx";
 import CellEditor from "./CellEditor.tsx";
+
+/**
+ * A filter row under the headers: a GET form to `action` re-sending `fields`
+ * (e.g. the table name and sort) with one filter input per column, filled from `values`.
+ */
+export type FilterForm = { action: string; fields: Record<string, string>; values: Filters };
 
 /** Rows shown, and whether more were left. */
 export type RowStats = { count: number; truncated?: boolean };
@@ -12,7 +19,7 @@ export type RowStats = { count: number; truncated?: boolean };
  * Renders query results. `sortHref` (optional) makes column headers sortable.
  * With `table` and `rowKey` (reads a row's key), cells can be edited (see
  * browser/scripts/cell-editor.ts); `blobColumns` get a file upload in the editor.
- * Editable rows can also be deleted.
+ * Editable rows can also be deleted. With `filter`, a row of inputs filters by column.
  * `rows` are arrays whose first values match `columns` (more may follow, e.g. key
  * values for `rowKey`). They are read lazily (e.g. a SQLite cursor), so the page
  * streams while rows load; `stats.count` holds the number of rows once the table
@@ -30,6 +37,7 @@ export default function DataTable({
   blobColumns = [],
   stats = { count: 0 },
   limit = Infinity,
+  filter,
 }: {
   columns: string[];
   rows: Iterable<Row>;
@@ -41,8 +49,10 @@ export default function DataTable({
   table?: string;
   rowKey?: (row: Row) => RowKey;
   blobColumns?: string[];
+  filter?: FilterForm;
 }) {
   const editable = Boolean(table && rowKey);
+  const formId = "table-filter";
   return (
     <div
       class="table-wrap"
@@ -51,6 +61,16 @@ export default function DataTable({
       data-update-url={editable ? url("/update-cell") : undefined}
     >
       {editable && <CellEditor />}
+      {filter && (
+        // The inputs sit in the table and join this form via their form attribute.
+        <form id={formId} method="get" action={filter.action} class="filter-form">
+          {Object.entries(filter.fields).map(([name, value]) => (
+            <input type="hidden" name={name} value={value} />
+          ))}
+          {/* Enter in any input submits: implicit submission needs a submit button. */}
+          <button type="submit" tabindex={-1} aria-hidden="true" />
+        </form>
+      )}
       <table>
         <thead>
           <tr>
@@ -68,6 +88,25 @@ export default function DataTable({
               </th>
             ))}
           </tr>
+          {filter && (
+            <tr class="filter-row">
+              {editable && <th class="action" />}
+              {columns.map((column) => (
+                <th>
+                  <input
+                    type="search"
+                    form={formId}
+                    name={FILTER_PARAM + column}
+                    value={filter.values[column] ?? ""}
+                    placeholder="Filter"
+                    aria-label={`Filter ${column}`}
+                    title="text: contains · !text: doesn't contain · =, !=, <, <=, >, >= value · NULL · !NULL"
+                    autocomplete="off"
+                  />
+                </th>
+              ))}
+            </tr>
+          )}
         </thead>
         <tbody>
           <LazyRows

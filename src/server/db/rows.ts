@@ -2,6 +2,8 @@
 import { db, holdCursor } from "./connection.ts";
 import { assertTable, findObject, hasBlobAffinity, tableColumns } from "./schema.ts";
 import { PAGE_CLAUSE, pageParams, parseNumber, quote, prepareBig, sameSqlName } from "./sql.ts";
+import { filterClause } from "./filter.ts";
+import type { Filters } from "./filter.ts";
 import { keyValue } from "../rowKey.ts";
 import type { RowKey } from "../rowKey.ts";
 import type { SQLInputValue } from "node:sqlite";
@@ -100,13 +102,19 @@ function keyColumnsOf(object: SchemaObject, cols: Column[], withoutRowid: boolea
 
 /**
  * One page of a table or view as a lazy cursor of rows (arrays in column order),
- * sorted by `sort` if it is a column. For tables, `rowKey` reads a row's key:
+ * sorted by `sort` if it is a column and limited to rows matching `filters`. For tables, `rowKey` reads a row's key:
  * the key columns are selected once more after the visible ones, so the hidden
  * rowid is available too.
  */
 export function readTablePage(
   { object, columnNames, keyColumns }: TableInfo,
-  { sort, dir, limit, offset }: { sort?: string; dir?: SortDir; limit: number; offset: number },
+  {
+    sort,
+    dir,
+    limit,
+    offset,
+    filters,
+  }: { sort?: string; dir?: SortDir; limit: number; offset: number; filters?: Filters },
 ) {
   const sortColumn = findColumn({ columnNames }, sort);
   const keySelect = keyColumns.map((name) => `, ${quote(name)}`).join("");
@@ -117,15 +125,16 @@ export function readTablePage(
     ...(sortColumn ? [`${quote(sortColumn)} ${dir === "desc" ? "DESC" : "ASC"}`] : []),
     ...keyColumns.map(quote),
   ];
+  const { where, params } = filterClause(filters);
   const order = terms.length ? ` ORDER BY ${terms.join(", ")}` : "";
   const statement = prepareBig(
-    `SELECT *${keySelect} FROM ${quote(object.name)}${order} ${PAGE_CLAUSE}`,
+    `SELECT *${keySelect} FROM ${quote(object.name)}${where}${order} ${PAGE_CLAUSE}`,
   );
   statement.setReturnArrays(true);
   const visibleCount = columnNames.length;
   return {
     rows: holdCursor(
-      statement.iterate(pageParams({ limit, offset })) as Iterable<unknown>,
+      statement.iterate({ ...params, ...pageParams({ limit, offset }) }) as Iterable<unknown>,
     ) as Iterable<Row>,
     rowKey: keyColumns.length
       ? (row: Row): RowKey =>

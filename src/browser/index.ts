@@ -6,3 +6,4 @@ import "./scripts/confirm.ts";
 import "./scripts/add-column.ts";
 import "./scripts/flash.ts";
 import "./scripts/nav-toggle.ts";
+import "./scripts/table-filter.ts";
