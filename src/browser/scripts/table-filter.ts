@@ -1,3 +1,6 @@
+import { parseJson } from "./json.ts";
+import { load, save } from "./storage.ts";
+
 // Filter row of a table (see DataTable): clearing an active filter applies at once.
 document.addEventListener("input", (e) => {
   const input = e.target;
@@ -19,24 +22,18 @@ document.addEventListener("input", (e) => {
 const filterRow = document.querySelector(".filter-row");
 const table = filterRow?.closest("table");
 if (table) {
-  const key = `jeasql:widths:${new URLSearchParams(location.search).get("name")}`;
+  const key = `widths:${new URLSearchParams(location.search).get("name")}`;
   const headers = [...table.querySelectorAll<HTMLElement>("thead tr:first-child th")];
   const filtered = [...filterRow!.querySelectorAll("input")].some((i) => i.defaultValue !== "");
-  try {
-    if (!filtered) {
-      sessionStorage.setItem(
-        key,
-        JSON.stringify(headers.map((th) => th.getBoundingClientRect().width)),
-      );
-    } else {
-      const widths = JSON.parse(sessionStorage.getItem(key) ?? "null");
-      if (Array.isArray(widths) && widths.length === headers.length) {
-        headers.forEach((th, i) => (th.style.width = `${widths[i]}px`));
-        table.style.width = `${widths.reduce((sum: number, w: number) => sum + w, 0)}px`;
-        table.classList.add("fixed-widths");
-      }
+  if (!filtered) {
+    save(key, JSON.stringify(headers.map((th) => th.getBoundingClientRect().width)));
+  } else {
+    // Nothing stored (or storage blocked): columns just size to their content.
+    const widths = parseJson<unknown>(load(key) ?? undefined, null);
+    if (Array.isArray(widths) && widths.length === headers.length) {
+      headers.forEach((th, i) => (th.style.width = `${widths[i]}px`));
+      table.style.width = `${widths.reduce((sum: number, w: number) => sum + w, 0)}px`;
+      table.classList.add("fixed-widths");
     }
-  } catch {
-    // Storage blocked or unreadable: columns just size to their content.
   }
 }
