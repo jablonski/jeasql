@@ -59,7 +59,7 @@ function cellContent(value: unknown, text: string, blobHref: string | undefined)
   if (value instanceof Uint8Array) {
     const label = `BLOB (${value.byteLength} bytes)`;
     return blobHref ? (
-      <a href={blobHref} download>
+      <a href={blobHref} download data-blob-link>
         {label}
       </a>
     ) : (

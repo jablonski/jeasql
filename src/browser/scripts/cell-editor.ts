@@ -143,7 +143,7 @@ document.querySelectorAll("[data-js-table]").forEach((wrap) => {
     row.querySelectorAll<HTMLInputElement>('input[name="key"]').forEach((input) => {
       input.value = key;
     });
-    row.querySelectorAll<HTMLAnchorElement>("a[href*='download-blob']").forEach((link) => {
+    row.querySelectorAll<HTMLAnchorElement>("a[data-blob-link]").forEach((link) => {
       const href = new URL(link.href);
       href.searchParams.set("key", key);
       link.href = href.toString();
