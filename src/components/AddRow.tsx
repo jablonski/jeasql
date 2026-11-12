@@ -31,12 +31,13 @@ export default function AddRow({
         <div class="grid">
           {cols
             .filter((column) => !isGenerated(column))
-            .map((column) => (
-              <label class="field">
-                <span>
+            .map((column, i) => (
+              <div class="field">
+                <label for={inputId(i)}>
                   {column.name} <small>{columnFlags(column)}</small>
-                </span>
+                </label>
                 <input
+                  id={inputId(i)}
                   name={insertField.value(column.name)}
                   placeholder={defaultPlaceholder(column, rowidAlias)}
                 />
@@ -48,13 +49,15 @@ export default function AddRow({
                     title="A chosen file is stored as BLOB instead of the text above"
                   />
                 )}
-                <label class="inline">
-                  <input type="checkbox" name={insertField.isNull(column.name)} /> NULL
-                </label>
-                <label class="inline">
-                  <input type="checkbox" name={insertField.isEmpty(column.name)} /> Empty
-                </label>
-              </label>
+                <span class="inline-fields">
+                  <label class="inline">
+                    <input type="checkbox" name={insertField.isNull(column.name)} /> NULL
+                  </label>
+                  <label class="inline">
+                    <input type="checkbox" name={insertField.isEmpty(column.name)} /> Empty
+                  </label>
+                </span>
+              </div>
             ))}
         </div>
         <div class="actions">
@@ -65,6 +68,9 @@ export default function AddRow({
     </details>
   );
 }
+
+/** Id of a column's text input, so its heading can label it (by position: ids can't hold spaces). */
+const inputId = (i: number) => `add-row-${i}`;
 
 /** Type and constraints of a column, e.g. "INTEGER · PK · NOT NULL". */
 function columnFlags(column: Column) {

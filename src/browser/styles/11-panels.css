@@ -78,7 +78,8 @@ input[type="checkbox"] {
   gap: 0.3rem;
 }
 
-.field > span {
+.field > span,
+.field > label {
   color: var(--text-2);
   font-size: 12px;
   font-weight: 600;
